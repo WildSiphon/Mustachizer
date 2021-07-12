@@ -2,6 +2,7 @@
 
 import cv2,math,argparse
 import matplotlib.pyplot as plt
+from modules.twitter import twitter
 
 # Variables globales de détection de yeux et de visages
 eyeCascade = cv2.CascadeClassifier('./haarcascade/eye.xml')
@@ -95,6 +96,14 @@ def main(source_image_path,debug):
 	plt.axis('off')
 	plt.imshow(cv2.cvtColor(SRC, cv2.COLOR_BGR2RGB))
 	plt.show()
+
+	# Sauvegarde de l'image sous le nom "./image.png"
+	cv2.imwrite('./image.png',SRC)
+
+	# Connexion au compte Twitter
+	twitter.connect()
+	# Publication de l'image
+	twitter.postMedia('./image.png','test 1 test 2 testicucle')
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='python script to add a mustache to people')

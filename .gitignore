@@ -1,0 +1,3 @@
+*.json
+image.png
+*__pycache__*

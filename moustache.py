@@ -35,7 +35,7 @@ def main(source_image_path, debug):
     plt.show()
 
     # Sauvegarde de l'image sous le nom "./image.png"
-    image.save("./image.png", image)
+    image.save("./image.png")
 
     # Connexion au compte Twitter
     twitter.connect()

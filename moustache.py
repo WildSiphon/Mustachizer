@@ -27,7 +27,7 @@ def main(source_image_path, debug):
     logging.debug("Faces:\n%s", faces)
 
     for face in faces:
-        placer.place_mustache(image, faces[0])
+        placer.place_mustache(image, face)
 
     # Affichage de l'image une fois les opérations exécutées
     plt.axis("off")

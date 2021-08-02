@@ -44,7 +44,7 @@ class MustachePlacer:
         bottom_right_corner = self.MUSTACHE_ANCHOR + numpy.array(
             [-mustache.width / 2, mustache.height / 2, 0]
         )
-        return bottom_left_corner, upper_left_corner, upper_right_corner, bottom_right_corner
+        return numpy.array((bottom_left_corner, upper_left_corner, upper_right_corner, bottom_right_corner))
 
     def place_mustache(
         self,
@@ -55,7 +55,7 @@ class MustachePlacer:
     ):
         """Place a mustache on a face."""
         if self.debug:
-            drawer = DebugDrawer.instance.drawer
+            drawer = DebugDrawer.instance().drawer
             drawer.rectangle(
                 (face.x, face.y, face.x + face.width, face.y + face.height),
                 outline="red",
@@ -83,6 +83,18 @@ class MustachePlacer:
         mustache_image = mustache.image
 
         mustache_box = self._compute_mustache_box(face, mustache)
+        mustache_box_projected, _ = cv2.projectPoints(
+            mustache_box,
+            face.rotation,
+            face.translation,
+            camera.matrix,
+            camera.distortion,
+        )
+        logging.debug("Box shape: %s", mustache_box.shape)
+        mustache_box_projected = [tuple(point[0]) for point in mustache_box_projected]
+        logging.debug("Project box shape: %s", mustache_box_projected)
+        #perspective_matrix = cv2.getPerspectiveTransform(mustache_box[:, :2], mustache_box_projected.T)
+        #print(perspective_matrix)
         if self.debug:
             mustache_projected, _ = cv2.projectPoints(
                 self.MUSTACHE_ANCHOR,
@@ -92,14 +104,6 @@ class MustachePlacer:
                 camera.distortion,
             )
             drawer.text(mustache_projected, "x", "cyan")
-            mustache_box_projected, _ = cv2.projectPoints(
-                numpy.array(mustache_box),
-                face.rotation,
-                face.translation,
-                camera.matrix,
-                camera.distortion,
-            )
-            mustache_box_projected = [tuple(point[0]) for point in mustache_box_projected]
             drawer.polygon(mustache_box_projected, outline="cyan")
 
         #face_image.paste(mustache, mustache_position, mask=mustache.getchannel("A"))

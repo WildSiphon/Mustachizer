@@ -20,7 +20,7 @@ logging.debug("Image size: %s", image.size)
 
 camera = Camera(image, numpy.zeros((4, 1)))
 
-DebugDrawer.instance.load(image)
+DebugDrawer.instance().load(image)
 
 faces = finder.find_faces(image, camera)
 logging.debug("Found %d face(s) !", len(faces))

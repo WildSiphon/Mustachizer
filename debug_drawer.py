@@ -7,7 +7,6 @@ class DebugDrawer:
     __instance = None
 
     @classmethod
-    @property
     def instance(cls):
         if not cls.__instance:
             cls.__instance = DebugDrawer()

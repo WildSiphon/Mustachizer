@@ -4,7 +4,6 @@ import sys
 from PIL import Image
 from PIL import ImageShow
 
-from face import Face
 from mustache_placer import MustachePlacer
 from face_finder import FaceFinder
 from debug_drawer import DebugDrawer
@@ -12,8 +11,8 @@ from camera import Camera
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-placer = MustachePlacer(debug=True)
-finder = FaceFinder(debug=True)
+placer = MustachePlacer(debug=False)
+finder = FaceFinder(debug=False)
 
 image = Image.open("./test.jpg")
 logging.debug("Image size: %s", image.size)

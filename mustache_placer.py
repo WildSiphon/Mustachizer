@@ -19,8 +19,8 @@ class MustacheType(Enum):
 
 class MustachePlacer:
 
-    PROPORTION_WIDTH = 0.6
-    MUSTACHE_ANCHOR = numpy.float32([0, -50, -50])
+    PROPORTION_WIDTH = 0.7
+    MUSTACHE_ANCHOR = numpy.float32([0, -70, -50])
 
     def __init__(self, debug=False):
         self.debug = debug
@@ -44,7 +44,14 @@ class MustachePlacer:
         bottom_right_corner = self.MUSTACHE_ANCHOR + numpy.array(
             [-mustache.width / 2, mustache.height / 2, 0]
         )
-        return numpy.array((bottom_left_corner, upper_left_corner, upper_right_corner, bottom_right_corner))
+        return numpy.array(
+            (
+                bottom_left_corner,
+                upper_left_corner,
+                upper_right_corner,
+                bottom_right_corner,
+            )
+        )
 
     def place_mustache(
         self,
@@ -90,11 +97,26 @@ class MustachePlacer:
             camera.matrix,
             camera.distortion,
         )
-        logging.debug("Box shape: %s", mustache_box.shape)
         mustache_box_projected = [tuple(point[0]) for point in mustache_box_projected]
-        logging.debug("Project box shape: %s", mustache_box_projected)
-        #perspective_matrix = cv2.getPerspectiveTransform(mustache_box[:, :2], mustache_box_projected.T)
-        #print(perspective_matrix)
+
+        mustache_box = [tuple(point[:2]) for point in mustache_box]
+        original_box = numpy.float32(
+            [
+                [0, 0],
+                [mustache_image.width, 0],
+                [mustache_image.width, mustache_image.height],
+                [0, mustache_image.height],
+            ]
+        )
+        perspective_matrix = cv2.getPerspectiveTransform(
+            original_box, numpy.float32(mustache_box_projected)
+        )
+        mustache_image = mustache_image.transpose(Image.FLIP_TOP_BOTTOM)
+        cv2_image = numpy.array(mustache_image)
+        cv2_image = cv2.warpPerspective(cv2_image, perspective_matrix, face_image.size)
+        mustache_image = Image.fromarray(cv2_image, "RGBA")
+        face_image.paste(mustache_image, (0, 0), mustache_image.getchannel("A"))
+
         if self.debug:
             mustache_projected, _ = cv2.projectPoints(
                 self.MUSTACHE_ANCHOR,
@@ -105,5 +127,3 @@ class MustachePlacer:
             )
             drawer.text(mustache_projected, "x", "cyan")
             drawer.polygon(mustache_box_projected, outline="cyan")
-
-        #face_image.paste(mustache, mustache_position, mask=mustache.getchannel("A"))

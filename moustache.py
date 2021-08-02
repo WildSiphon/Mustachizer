@@ -11,23 +11,29 @@ from PIL import Image
 from modules.twitter import twitter
 from mustache_placer import MustachePlacer
 from face_finder import FaceFinder
+from debug_drawer import DebugDrawer
+from camera import Camera
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 def main(source_image_path, debug):
 
     placer = MustachePlacer(debug)
-    finder = FaceFinder()
+    finder = FaceFinder(debug)
 
     image = Image.open(source_image_path)
     logging.debug("Image size: %s", image.size)
 
-    faces = finder.find_faces(image)
+    camera = Camera(image, numpy.zeros((4, 1)))
+
+    DebugDrawer.instance().load(image)
+
+    faces = finder.find_faces(image, camera)
     logging.debug("Found %d face(s) !", len(faces))
     logging.debug("Faces:\n%s", faces)
 
     for face in faces:
-        placer.place_mustache(image, face)
+        placer.place_mustache(image, camera, face)
 
     # Affichage de l'image une fois les opérations exécutées
     plt.axis("off")

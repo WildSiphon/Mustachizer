@@ -53,7 +53,7 @@ class FaceFinder:
             projections.append((rotation_vector, translation_vector))
 
             if self.debug:
-                drawer = DebugDrawer.instance.drawer
+                drawer = DebugDrawer.instance().drawer
                 for j, mark in enumerate(face_marks[i]):
                     drawer.text(mark, f"{j}", "blue" if j in self.FACE_2D_INDEXES else "lime")
 

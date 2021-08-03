@@ -2,3 +2,4 @@
 image.png
 *__pycache__*
 Pipfile.lock
+ENV

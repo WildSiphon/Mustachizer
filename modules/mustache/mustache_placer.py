@@ -7,14 +7,14 @@ from enum import Enum
 from PIL import Image
 from PIL import ImageDraw
 
-from face import Face
-from debug_drawer import DebugDrawer
-from mustache import Mustache
-from camera import Camera
+from modules.mustache.face import Face
+from modules.mustache.debug_drawer import DebugDrawer
+from modules.mustache.mustache import Mustache
+from modules.mustache.camera import Camera
 
 
 class MustacheType(Enum):
-    DEFAULT = "./moustache.png"
+    DEFAULT = "./img/moustache.png"
 
 
 class MustachePlacer:

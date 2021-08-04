@@ -4,17 +4,17 @@ import sys
 from PIL import Image
 from PIL import ImageShow
 
-from mustache_placer import MustachePlacer
-from face_finder import FaceFinder
-from debug_drawer import DebugDrawer
-from camera import Camera
+from modules.mustache.mustache_placer import MustachePlacer
+from modules.mustache.face_finder import FaceFinder
+from modules.mustache.debug_drawer import DebugDrawer
+from modules.mustache.camera import Camera
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 placer = MustachePlacer(debug=False)
 finder = FaceFinder(debug=False)
 
-image = Image.open("./test.jpg")
+image = Image.open("./img/tmp.jpg")
 logging.debug("Image size: %s", image.size)
 
 camera = Camera(image, numpy.zeros((4, 1)))

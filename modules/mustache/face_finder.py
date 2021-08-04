@@ -4,12 +4,12 @@ import math
 import numpy
 
 from PIL import Image
-from face import Face
-from debug_drawer import DebugDrawer
-from camera import Camera
+from modules.mustache.face import Face
+from modules.mustache.debug_drawer import DebugDrawer
+from modules.mustache.camera import Camera
 
-eyeCascade = cv2.CascadeClassifier("./haarcascade/eye.xml")
-faceCascade = cv2.CascadeClassifier("./haarcascade/frontalface_default.xml")
+eyeCascade = cv2.CascadeClassifier("./models/haarcascade/eye.xml")
+faceCascade = cv2.CascadeClassifier("./models/haarcascade/frontalface_default.xml")
 
 
 class FaceFinder:
@@ -30,7 +30,7 @@ class FaceFinder:
     def __init__(self, debug=False):
         self.debug = debug
         self._face_marker = cv2.face.createFacemarkLBF()
-        self._face_marker.loadModel("face_marker_models/lbf.model")
+        self._face_marker.loadModel("./models/face_marker_models/lbf.model")
 
     def _find_eyes(self, image: Image, gray_image: Image):
         return eyeCascade.detectMultiScale(gray_image, minNeighbors=20)

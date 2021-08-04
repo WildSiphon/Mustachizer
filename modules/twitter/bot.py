@@ -3,14 +3,14 @@ import json
 import requests
 import numpy
 import os
-from time import sleep
+import random
 
 class BotTwitter:
 
 	def __init__(self,debug=False):
 		self.debug = debug
 		self.tmp = './img/tmp/'
-
+		self._empty_tmp()
 		try:
 			self._connect()
 			self.name = self.api.me().name
@@ -46,32 +46,43 @@ class BotTwitter:
 				if not block: break
 				handle.write(block)
 
-	def _mustachize(self,urls):
-		count=0
-		for url in urls:
-			print(url)
-			self._download_media(url,f"{count}")
-			count+=1
+	def _download_medias(self,urls):
+		for count in range(len(urls)): self._download_media(urls[count],f"{count}")
+
+	def _mustachize_tmp(self,urls):
+		pass
 
 	def _get_last_mentions(self,max_tweets=1000):
 		searched_tweets = [status._json for status in tweepy.Cursor(self.api.search, q=f"@{self.screen_name}").items(max_tweets)]
 		self.last_mentions = [tweet for tweet in searched_tweets if self.screen_name in [t['screen_name'] for t in tweet['entities']['user_mentions']]]
 
-	def _reply_with_media(self,in_reply_to_status_id='',status='testytest'):
+	def _reply_with_media(self,in_reply_to_status_id=''):
+		with open('./modules/twitter/var.json','r') as f:
+			var = json.load(f)
+		status= random.choice(var['status'])
+
 		media_ids = [self.api.media_upload(f"{self.tmp}{filename}").media_id_string for filename in os.listdir(self.tmp)]
 		self.api.update_status(status=status,media_ids=media_ids,in_reply_to_status_id=in_reply_to_status_id,auto_populate_reply_metadata=True)
 
 	def reply_to_last_mentions(self):
 		self._get_last_mentions()
 		for tweet in self.last_mentions:
+			self.tweet_with_medias = None
 			if 'media' in tweet['entities']:
-				print("MEDIA",end=' ')
-				urls = [media['media_url_https'] for media in tweet['extended_entities']['media']]
-				print(f"MUUUUUUUUSTACHE THESE MOTHERFUCKER : {urls}")
-				self._mustachize(urls)
-				self._reply_with_media(tweet['id_str'])
-				self._empty_tmp()
-			elif tweet['in_reply_to_status_id_str']:		
+				print("MEDIA")
+				self.tweet_with_medias = tweet
+			elif tweet['in_reply_to_status_id_str']:
 				print("REPLY")
+				replying_to = self.api.statuses_lookup([tweet['in_reply_to_status_id_str']])[0]._json
+				if 'media' in replying_to['entities']:
+					self.tweet_with_medias = replying_to
+				else: print("but replying to something with no media")
 			else:
 				print("Not a response and no media added to the tweet")
+
+			if self.tweet_with_medias:
+				urls = [media['media_url_https'] for media in self.tweet_with_medias['extended_entities']['media']]
+				self._download_medias(urls)
+				#self._mustachize_tmp()
+				self._reply_with_media(tweet['id_str'])
+				self._empty_tmp()

@@ -30,7 +30,7 @@ class MustachePlacer:
                 mustache_type.value, self.PROPORTION_WIDTH
             )
 
-    def _compute_mustache_box(self, face: Face, mustache: Mustache):
+    def _compute_mustache_box(self, mustache: Mustache):
         """Computes the theorical boudning box of the mustache."""
         bottom_left_corner = self.MUSTACHE_ANCHOR - numpy.array(
             [mustache.width / 2, mustache.height / 2, 0]
@@ -89,7 +89,7 @@ class MustachePlacer:
         mustache = self._mustaches[mustache_type]
         mustache_image = mustache.image
 
-        mustache_box = self._compute_mustache_box(face, mustache)
+        mustache_box = self._compute_mustache_box(mustache)
         mustache_box_projected, _ = cv2.projectPoints(
             mustache_box,
             face.rotation,

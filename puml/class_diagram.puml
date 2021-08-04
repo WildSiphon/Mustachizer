@@ -1,0 +1,64 @@
+@startuml
+
+package modules {
+
+    package mustache {
+        class Mustachizer {
+            mustachize(image_buffer: io.BytesIO) -> io.ByteIO
+        }
+
+        class MustachePlacer {
+            place_mustache(\n\tface_image: PIL.Image,\n\tcamera: Camera,\n\tface: Face,\n\tmustache_type: MustacheType\n)
+        }
+
+        class Mustache {
+            FACE_WIDTH = 500
+            image: PIL.Image
+            width: float
+            height: float
+        }
+
+        enum MustacheType {
+            DEFAULT = "./img/moustache.png"
+        }
+
+        class FaceFinder {
+            find_faces(\n\timage: Image,\n\tcamera: Camera\n) -> list(Face)
+        }
+
+        class Face {
+            x: int
+            y: int
+            width: int
+            height: int
+            {field}rotation: numpy.array((3, 1))
+        }
+
+        class Camera {
+            {field}matrix: numpy.array((3, 3))
+            {field}distortion: numpy.array((4, 1))
+        }
+
+        class DebugDrawer {
+            load(image: PIL.Image)
+            drawer: PIL.ImageDraw.Draw
+        }
+
+        Mustachizer --> MustachePlacer
+        Mustachizer --> Camera
+        Mustachizer --> FaceFinder
+
+        MustachePlacer --> Mustache
+        MustachePlacer --> MustacheType
+        MustachePlacer -> DebugDrawer
+        MustachePlacer --> Face
+        Camera <-- MustachePlacer
+
+        FaceFinder --> Face
+        DebugDrawer <- FaceFinder
+        Camera <-- FaceFinder
+    }
+
+}
+
+@enduml

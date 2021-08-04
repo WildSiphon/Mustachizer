@@ -53,7 +53,7 @@ class BotTwitter:
     def _mustachize_tmp(self):
         for filename in os.listdir(self.tmp):
             with open(f"{self.tmp}{filename}", 'wb+') as image_file:
-                mustachized_image = self.mustachizer.mustachize(image_file, filename.rsplit(".")[0])
+                mustachized_image = self.mustachizer.mustachize(image_file, filename.rsplit(".", 1)[-1])
                 image_file.seek(0)
                 image_file.write(mustachized_image.read())
 

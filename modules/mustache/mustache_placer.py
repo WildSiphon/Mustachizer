@@ -118,6 +118,7 @@ class MustachePlacer:
         face_image.paste(mustache_image, (0, 0), mustache_image.getchannel("A"))
 
         if self.debug:
+            drawer = DebugDrawer.instance().drawer
             mustache_projected, _ = cv2.projectPoints(
                 self.MUSTACHE_ANCHOR,
                 face.rotation,

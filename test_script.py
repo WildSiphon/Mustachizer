@@ -25,6 +25,7 @@ faces = finder.find_faces(image, camera)
 logging.debug("Found %d face(s) !", len(faces))
 logging.debug("Faces:\n%s", faces)
 
-placer.place_mustache(image, camera, faces[0])
+for face in faces:
+    placer.place_mustache(image, camera, face)
 
 ImageShow.show(image)

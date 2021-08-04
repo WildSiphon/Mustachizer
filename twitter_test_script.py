@@ -1,4 +1,7 @@
+from time import sleep
 from modules.twitter.bot import BotTwitter
 
 twitter = BotTwitter(debug=True)
-twitter.reply_to_last_mentions()
+while True:
+	twitter.reply_to_last_mentions()
+	sleep(10)

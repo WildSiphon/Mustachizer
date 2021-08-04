@@ -3,7 +3,9 @@ import json
 import requests
 import os
 import random
+import io
 from datetime import *
+from modules.mustache.mustachizer import Mustachizer
 
 class BotTwitter:
 
@@ -12,6 +14,7 @@ class BotTwitter:
 		self.tmp = './img/tmp/'
 		self.lastdate = (datetime.now()-timedelta(hours=2))
 		self._empty_tmp()
+		self.mustachizer = Mustachizer(debug=debug)
 		self._connect()
 		self.name = self.api.me().name
 		self.screen_name = self.api.me().screen_name
@@ -49,8 +52,9 @@ class BotTwitter:
 
 	def _mustachize_tmp(self):
 		for filename in os.listdir(self.tmp):
-			# ADD STUFF HERE
-			pass
+			f = open(f"{self.tmp}{filename}",'wb+')
+			g = self.mustachizer.mustachize(f)
+			f=g
 
 	def _get_last_mentions(self,max_tweets=1000):
 		searched_tweets = [status._json for status in tweepy.Cursor(self.api.search, q=f"@{self.screen_name}").items(max_tweets)]
@@ -66,7 +70,7 @@ class BotTwitter:
 
 	def reply_to_last_mentions(self):
 		self._get_last_mentions()
-		if self.debug: print(f"{datetime.now()-timedelta(hours=2)} GMT +00:00 : {'no' if len(self.last_mentions) else len(self.last_mentions)} new mention")
+		if self.debug: print(f"{datetime.now()-timedelta(hours=2)} GMT +00:00 : {len(self.last_mentions) if len(self.last_mentions) else 'no'} new mention")
 		for tweet in self.last_mentions:
 			self.tweet_with_medias = None
 			if 'media' in tweet['entities']:

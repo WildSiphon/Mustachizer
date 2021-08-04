@@ -2,7 +2,7 @@ import numpy
 
 
 class Camera:
-    def __init__(self, image, distortion):
+    def __init__(self, image, distortion=None):
         width, height = image.size
         camera_x = width / 2
         camera_y = height / 2
@@ -11,7 +11,7 @@ class Camera:
         self._matrix = numpy.array(
             [[focal_x, 0, camera_x], [0, focal_y, camera_y], [0, 0, 1]]
         )
-        self._distortion = distortion
+        self._distortion = distortion if distortion is not None else numpy.zeros((4, 1))
 
     @property
     def matrix(self):

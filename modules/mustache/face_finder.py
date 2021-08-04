@@ -8,7 +8,6 @@ from modules.mustache.face import Face
 from modules.mustache.debug_drawer import DebugDrawer
 from modules.mustache.camera import Camera
 
-eyeCascade = cv2.CascadeClassifier("./models/haarcascade/eye.xml")
 faceCascade = cv2.CascadeClassifier("./models/haarcascade/frontalface_default.xml")
 
 
@@ -31,9 +30,6 @@ class FaceFinder:
         self.debug = debug
         self._face_marker = cv2.face.createFacemarkLBF()
         self._face_marker.loadModel("./models/face_marker_models/lbf.model")
-
-    def _find_eyes(self, image: Image, gray_image: Image):
-        return eyeCascade.detectMultiScale(gray_image, minNeighbors=20)
 
     def _compute_face_projections(self, cv2_image, camera: Camera, faces):
         _, face_marks = self._face_marker.fit(cv2_image, faces)

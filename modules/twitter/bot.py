@@ -3,7 +3,8 @@ import json
 import requests
 import os
 import random
-import io
+from urllib.request import urlopen
+from io import BytesIO
 from datetime import *
 from modules.mustache.mustachizer import Mustachizer
 
@@ -20,7 +21,7 @@ class BotTwitter:
         self.lastdate = (datetime.now()-timedelta(hours=2))
         self.tmp = './img/tmp/'
         self._empty_tmp()
-        self.mustachizer = Mustachizer(debug=debug)
+        self.mustachizer = Mustachizer(debug=False)
         self._connect()
         self.name = self.api.me().name
         self.screen_name = self.api.me().screen_name
@@ -48,23 +49,13 @@ class BotTwitter:
         """Empty the dir `img/tmp`."""
         for filename in os.listdir(self.tmp): os.remove(f"{self.tmp}{filename}")
 
-    def _download_media(self,url,name='tmp'):
-        with open(f"{self.tmp}{name}.jpg", 'wb') as handle:
-            response = requests.get(url, stream=True)
-            if not response.ok: return
-            for block in response.iter_content(1024):
-                if not block: break
-                handle.write(block)
-
-    def _download_medias(self,urls):
-        for count in range(len(urls)): self._download_media(urls[count],f"{count}")
-
-    def _mustachize_tmp(self):
-        for filename in os.listdir(self.tmp):
-            with open(f"{self.tmp}{filename}", 'wb+') as image_file:
-                mustachized_image = self.mustachizer.mustachize(image_file, filename.rsplit(".", 1)[-1])
-                image_file.seek(0)
-                image_file.write(mustachized_image.read())
+    def _mustachize_urls(self,urls):
+        for count in range(len(urls)):
+            url_file = urlopen(urls[count])
+            image_buffer = url_file.read()
+            output = self.mustachizer.mustachize(BytesIO(image_buffer),"JPEG")
+            with open(f"{self.tmp}{count}",'wb') as out:
+                out.write(output.read())
 
     def _get_last_mentions(self,max_tweets=1000):
         searched_tweets = [status._json for status in tweepy.Cursor(self.api.search, q=f"@{self.screen_name}").items(max_tweets)]
@@ -77,6 +68,7 @@ class BotTwitter:
         status = random.choice(var['status'])
         media_ids = [self.api.media_upload(f"{self.tmp}{filename}").media_id_string for filename in os.listdir(self.tmp)]
         self.api.update_status(status=status,media_ids=media_ids,in_reply_to_status_id=in_reply_to_status_id,auto_populate_reply_metadata=True)
+        if self.debug: print("Replied.")
 
     def reply_to_last_mentions(self):
         self._get_last_mentions()
@@ -96,8 +88,7 @@ class BotTwitter:
                 print("Not a response and no media added to the tweet")
             if self.tweet_with_medias:
                 urls = [media['media_url_https'] for media in self.tweet_with_medias['extended_entities']['media']]
-                self._download_medias(urls)
-                self._mustachize_tmp()
+                self._mustachize_urls(urls)
                 self._reply_with_media(tweet['id_str'])
                 self._empty_tmp()
         if self.last_mentions:

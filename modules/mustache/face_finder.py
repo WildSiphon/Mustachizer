@@ -61,6 +61,8 @@ class FaceFinder:
         faces = faceCascade.detectMultiScale(
             cv2_gray_image, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30)
         )
+        if not faces:
+            return []
         projections = self._compute_face_projections(cv2_gray_image, camera, faces)
 
         return [Face(*face, *projection) for face, projection in zip(faces, projections)]

@@ -9,6 +9,7 @@ pillow = "*"
 numpy = "*"
 tweepy = "*"
 matplotlib = "*"
+"discord.py" = "*"
 
 [dev-packages]
 

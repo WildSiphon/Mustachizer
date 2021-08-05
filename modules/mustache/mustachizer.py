@@ -38,7 +38,8 @@ class Mustachizer:
             self.__mutache_placer.place_mustache(image, camera, face)
 
         output_stream = io.BytesIO()
-        image.save(output_stream, format="jpg")
+        image = image.convert("RGB")
+        image.save(output_stream, format="jpeg")
         output_stream.seek(0)
         return output_stream
 

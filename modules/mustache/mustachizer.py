@@ -30,7 +30,7 @@ class Mustachizer:
         :return: The modified image
         :rtype: io.BytesIO
         """
-        image = Image.open(image_buffer, formats=[format_])
+        image = Image.open(image_buffer, formats=[format_]).convert("RGBA")
 
         camera = Camera(image)
         faces = self.__face_finder.find_faces(image, camera)

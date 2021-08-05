@@ -12,9 +12,24 @@ from modules.mustache.debug_drawer import DebugDrawer
 from modules.mustache.mustache import Mustache
 from modules.mustache.camera import Camera
 
+import random
+
 
 class MustacheType(Enum):
-    DEFAULT = "./img/moustache.png"
+    # DEFAULT = "./img/moustache.png"
+    BAMBINO = "./img/mustaches_collection/Bambino.png"
+    CAPTAIN_HOOK = "./img/mustaches_collection/Captain_Hook.png"
+    DOCTOR_WATSON = "./img/mustaches_collection/Doctor_Watson.png"
+    EDWARDIAN = "./img/mustaches_collection/Edwardian.png"
+    FANCY_CURL = "./img/mustaches_collection/Fancy_Curl.png"
+    HANDLEBAR = "./img/mustaches_collection/Handlebar.png"
+    HERCULE_POIROT = "./img/mustaches_collection/Hercule_Poirot.png"
+    KAISER_WHILHELM = "./img/mustaches_collection/Kaiser_Wilhelm.png"
+    MAGNUM = "./img/mustaches_collection/Magnum.png"
+    REVERSE_HANDLEBAR = "./img/mustaches_collection/Reverse_Handlebar.png"
+    ROLLIE_FINGERS = "./img/mustaches_collection/Rollie_Fingers.png"
+    SALVADOR_DALI = "./img/mustaches_collection/Salvador_Dali.png"
+
 
 
 class MustachePlacer:
@@ -58,9 +73,9 @@ class MustachePlacer:
         face_image: Image,
         camera: Camera,
         face: Face,
-        mustache_type=MustacheType.DEFAULT,
     ):
         """Place a mustache on a face."""
+        mustache_type=random.choice(list(MustacheType))
         if self.debug:
             drawer = DebugDrawer.instance().drawer
             drawer.rectangle(

@@ -8,11 +8,17 @@ from datetime import *
 from modules.mustache.mustachizer import Mustachizer
 
 class BotTwitter:
+    """Start the StacheBot on Twitter.
+
+    :param debug: Whether it should print stuffs, defaults to False
+    :type debug: bool, optional
+    """
 
     def __init__(self,debug=False):
+        """The constructor."""
         self.debug = debug
-        self.tmp = './img/tmp/'
         self.lastdate = (datetime.now()-timedelta(hours=2))
+        self.tmp = './img/tmp/'
         self._empty_tmp()
         self.mustachizer = Mustachizer(debug=debug)
         self._connect()
@@ -22,6 +28,7 @@ class BotTwitter:
         if self.debug: print(f"Connected to \'{self.name}\' @{self.screen_name}")
 
     def _get_credentials(self):
+        """Getting the credentials in `credentials.json`"""
         with open('./modules/twitter/credentials.json','r') as f:
             token = json.load(f)
         self.consumer_key = token['API_KEY']
@@ -30,6 +37,7 @@ class BotTwitter:
         self.access_token_secret = token['ACCESS_TOKEN_SECRET']
 
     def _connect(self):
+        """Connect to the Twitter API."""
         self._get_credentials()
         auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
         auth.secure = True
@@ -37,6 +45,7 @@ class BotTwitter:
         self.api = tweepy.API(auth)
 
     def _empty_tmp(self):
+        """Empty the dir `img/tmp`."""
         for filename in os.listdir(self.tmp): os.remove(f"{self.tmp}{filename}")
 
     def _download_media(self,url,name='tmp'):

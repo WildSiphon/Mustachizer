@@ -3,6 +3,7 @@ import io
 from modules.mustache.mustache_placer import MustachePlacer
 from modules.mustache.face_finder import FaceFinder
 from modules.mustache.camera import Camera
+from modules.mustache.debug_drawer import DebugDrawer
 from PIL import Image
 
 
@@ -31,6 +32,7 @@ class Mustachizer:
         :rtype: io.BytesIO
         """
         image = Image.open(image_buffer, formats=[format_]).convert("RGBA")
+        DebugDrawer.instance().load(image)
 
         camera = Camera(image)
         faces = self.__face_finder.find_faces(image, camera)

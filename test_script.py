@@ -14,7 +14,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 placer = MustachePlacer(debug=False)
 finder = FaceFinder(debug=False)
 
-image = Image.open("./img/tmp.jpg")
+image = Image.open("./img/test.jpg")
 logging.debug("Image size: %s", image.size)
 
 camera = Camera(image, numpy.zeros((4, 1)))

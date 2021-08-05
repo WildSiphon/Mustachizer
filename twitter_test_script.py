@@ -9,7 +9,6 @@ must = Mustachizer(debug=True)
 url_file = urlopen(url)
 image_buffer = url_file.read()
 output = must.mustachize(BytesIO(image_buffer),"JPEG")
-ImageShow.show(output)
 with open('./img/tmp/0','wb') as out:
     out.write(output.read())
 

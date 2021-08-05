@@ -1,6 +1,4 @@
 import io
-import os
-import random
 
 from modules.mustache.mustache_placer import MustachePlacer
 from modules.mustache.face_finder import FaceFinder
@@ -39,8 +37,7 @@ class Mustachizer:
         camera = Camera(image)
         faces = self.__face_finder.find_faces(image, camera)
         for face in faces:
-            current_mustache = f"./img/mustaches_collection/{random.choice(os.listdir('./img/mustaches_collection'))}"
-            self.__mutache_placer.place_mustache(image, camera, face, mustache_type=current_mustache)
+            self.__mutache_placer.place_mustache(image, camera, face)
 
         output_stream = io.BytesIO()
         image = image.convert("RGB")

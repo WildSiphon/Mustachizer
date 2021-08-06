@@ -51,12 +51,16 @@ class BotTwitter:
 
     def _mustachize_urls(self,urls):
         """Download pictures from urls and mustachize them."""
+        if self.debug: print(f"{len(urls)} pictures :")
         for count in range(len(urls)):
             url_file = urlopen(urls[count])
             image_buffer = url_file.read()
             output = self.mustachizer.mustachize(BytesIO(image_buffer),"JPEG")
-            with open(f"{self.tmp}{count}",'wb') as out:
-                out.write(output.read())
+            if output != -1:
+                with open(f"{self.tmp}{count}",'wb') as out:
+                    out.write(output.read())
+                if self.debug:  print(f"\t{count+1}.Done")    
+            elif self.debug:    print(f"\t{count+1}.No Faces")    
 
     def _get_last_mentions(self,max_tweets=1000):
         """Get a list of all mentions that have appeared during the last period of time."""
@@ -64,19 +68,22 @@ class BotTwitter:
         last_mentions = [tweet for tweet in searched_tweets if self.screen_name in [t['screen_name'] for t in tweet['entities']['user_mentions']]]
         self.last_mentions = [tweet for tweet in last_mentions if self.lastdate < datetime.strptime(tweet['created_at'],'%a %b %d %H:%M:%S +0000 %Y')]
 
-    def _reply_with_media(self,in_reply_to_status_id=''):
+    def _reply_with_twitter_api(self,in_reply_to_status_id=''):
         """Reply to a tweet with a media"""
-        with open('./modules/twitter/var.json','r') as f:
-            var = json.load(f)
-        status = random.choice(var['status'])
-        media_ids = [self.api.media_upload(f"{self.tmp}{filename}").media_id_string for filename in os.listdir(self.tmp)]
-        self.api.update_status(status=status,media_ids=media_ids,in_reply_to_status_id=in_reply_to_status_id,auto_populate_reply_metadata=True)
+        if len(os.listdir(self.tmp)) != 0:
+            with open('./modules/twitter/var.json','r') as f:
+                var = json.load(f)
+            status = random.choice(var['status'])
+            media_ids = [self.api.media_upload(f"{self.tmp}{filename}").media_id_string for filename in os.listdir(self.tmp)]
+            self.api.update_status(status=status,media_ids=media_ids,in_reply_to_status_id=in_reply_to_status_id,auto_populate_reply_metadata=True)
+        else:
+            self.api.update_status(status='No faces found. Can\'t mustachize :(',in_reply_to_status_id=in_reply_to_status_id,auto_populate_reply_metadata=True)
         if self.debug: print("Replied.")
 
     def reply_to_last_mentions(self):
         """Responds to all mentions that have appeared during the last period of time."""
         self._get_last_mentions()
-        if self.debug: print(f"{datetime.now()-timedelta(hours=2)} GMT +00:00 : {len(self.last_mentions) if len(self.last_mentions) else 'no'} new mention")
+        if self.debug and len(self.last_mentions)!=0:print(f"{datetime.now()-timedelta(hours=2)} GMT +00:00 : {len(self.last_mentions)} new mention")
         for tweet in self.last_mentions:
             self.tweet_with_medias = None
             if 'media' in tweet['entities']:
@@ -93,7 +100,7 @@ class BotTwitter:
             if self.tweet_with_medias:
                 urls = [media['media_url_https'] for media in self.tweet_with_medias['extended_entities']['media']]
                 self._mustachize_urls(urls)
-                self._reply_with_media(tweet['id_str'])
+                self._reply_with_twitter_api(tweet['id_str'])
                 self._empty_tmp()
         if self.last_mentions:
             self.lastdate = datetime.strptime(self.last_mentions[0]['created_at'],'%a %b %d %H:%M:%S +0000 %Y')

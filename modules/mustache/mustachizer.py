@@ -36,14 +36,16 @@ class Mustachizer:
 
         camera = Camera(image)
         faces = self.__face_finder.find_faces(image, camera)
-        for face in faces:
-            self.__mutache_placer.place_mustache(image, camera, face)
+        if faces:
+            for face in faces:
+                self.__mutache_placer.place_mustache(image, camera, face)
 
-        output_stream = io.BytesIO()
-        image = image.convert("RGB")
-        image.save(output_stream, format="jpeg")
-        output_stream.seek(0)
-        return output_stream
+            output_stream = io.BytesIO()
+            image = image.convert("RGB")
+            image.save(output_stream, format="jpeg")
+            output_stream.seek(0)
+            return output_stream
+        return -1
 
     @property
     def debug(self):

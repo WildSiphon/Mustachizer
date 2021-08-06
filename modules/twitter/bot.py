@@ -50,6 +50,7 @@ class BotTwitter:
         for filename in os.listdir(self.tmp): os.remove(f"{self.tmp}{filename}")
 
     def _mustachize_urls(self,urls):
+        """Download pictures from urls and mustachize them."""
         for count in range(len(urls)):
             url_file = urlopen(urls[count])
             image_buffer = url_file.read()
@@ -58,11 +59,13 @@ class BotTwitter:
                 out.write(output.read())
 
     def _get_last_mentions(self,max_tweets=1000):
+        """Get a list of all mentions that have appeared during the last period of time."""
         searched_tweets = [status._json for status in tweepy.Cursor(self.api.search, q=f"@{self.screen_name}").items(max_tweets)]
         last_mentions = [tweet for tweet in searched_tweets if self.screen_name in [t['screen_name'] for t in tweet['entities']['user_mentions']]]
         self.last_mentions = [tweet for tweet in last_mentions if self.lastdate < datetime.strptime(tweet['created_at'],'%a %b %d %H:%M:%S +0000 %Y')]
 
     def _reply_with_media(self,in_reply_to_status_id=''):
+        """Reply to a tweet with a media"""
         with open('./modules/twitter/var.json','r') as f:
             var = json.load(f)
         status = random.choice(var['status'])
@@ -71,6 +74,7 @@ class BotTwitter:
         if self.debug: print("Replied.")
 
     def reply_to_last_mentions(self):
+        """Responds to all mentions that have appeared during the last period of time."""
         self._get_last_mentions()
         if self.debug: print(f"{datetime.now()-timedelta(hours=2)} GMT +00:00 : {len(self.last_mentions) if len(self.last_mentions) else 'no'} new mention")
         for tweet in self.last_mentions:

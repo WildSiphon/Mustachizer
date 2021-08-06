@@ -2,6 +2,8 @@ import numpy
 from enum import Enum
 
 class MustacheType(Enum):
+    """Enumerate all the different staches from our collection."""
+
     # DEFAULT = { "path":"./img/moustache.png",
     #             "anchor":numpy.float32([0, -70, -50]),
     #             "width":0.7}

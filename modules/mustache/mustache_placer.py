@@ -14,7 +14,6 @@ from modules.mustache.camera import Camera
 
 import random
 
-
 class MustacheType(Enum):
     # DEFAULT = "./img/moustache.png"
     BAMBINO = "./img/mustaches_collection/Bambino.png"
@@ -24,13 +23,15 @@ class MustacheType(Enum):
     FANCY_CURL = "./img/mustaches_collection/Fancy_Curl.png"
     HANDLEBAR = "./img/mustaches_collection/Handlebar.png"
     HERCULE_POIROT = "./img/mustaches_collection/Hercule_Poirot.png"
+    HULK_HOGAN = "./img/mustaches_collection/Hulk_Hogan.png"
     KAISER_WHILHELM = "./img/mustaches_collection/Kaiser_Wilhelm.png"
     MAGNUM = "./img/mustaches_collection/Magnum.png"
     REVERSE_HANDLEBAR = "./img/mustaches_collection/Reverse_Handlebar.png"
     ROLLIE_FINGERS = "./img/mustaches_collection/Rollie_Fingers.png"
     SALVADOR_DALI = "./img/mustaches_collection/Salvador_Dali.png"
-
-
+    THIN_STRAIGHT = "./img/mustaches_collection/Thin_Straight.png"
+    TRYPHON_TOURNESOL = "./img/mustaches_collection/Tryphon_Tournesol.png"
+    WRESTLER = "./img/mustaches_collection/Wrestler.png"
 
 class MustachePlacer:
 

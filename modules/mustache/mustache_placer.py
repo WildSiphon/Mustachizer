@@ -2,7 +2,6 @@ import logging
 import cv2
 import math
 import numpy
-from enum import Enum
 
 from PIL import Image
 from PIL import ImageDraw
@@ -10,54 +9,35 @@ from PIL import ImageDraw
 from modules.mustache.face import Face
 from modules.mustache.debug_drawer import DebugDrawer
 from modules.mustache.mustache import Mustache
+from modules.mustache.mustache_type import MustacheType
 from modules.mustache.camera import Camera
 
 import random
 
-class MustacheType(Enum):
-    # DEFAULT = "./img/moustache.png"
-    BAMBINO = "./img/mustaches_collection/Bambino.png"
-    CAPTAIN_HOOK = "./img/mustaches_collection/Captain_Hook.png"
-    DOCTOR_WATSON = "./img/mustaches_collection/Doctor_Watson.png"
-    EDWARDIAN = "./img/mustaches_collection/Edwardian.png"
-    FANCY_CURL = "./img/mustaches_collection/Fancy_Curl.png"
-    HANDLEBAR = "./img/mustaches_collection/Handlebar.png"
-    HERCULE_POIROT = "./img/mustaches_collection/Hercule_Poirot.png"
-    HULK_HOGAN = "./img/mustaches_collection/Hulk_Hogan.png"
-    KAISER_WHILHELM = "./img/mustaches_collection/Kaiser_Wilhelm.png"
-    MAGNUM = "./img/mustaches_collection/Magnum.png"
-    REVERSE_HANDLEBAR = "./img/mustaches_collection/Reverse_Handlebar.png"
-    ROLLIE_FINGERS = "./img/mustaches_collection/Rollie_Fingers.png"
-    SALVADOR_DALI = "./img/mustaches_collection/Salvador_Dali.png"
-    THIN_STRAIGHT = "./img/mustaches_collection/Thin_Straight.png"
-    TRYPHON_TOURNESOL = "./img/mustaches_collection/Tryphon_Tournesol.png"
-    WRESTLER = "./img/mustaches_collection/Wrestler.png"
-
 class MustachePlacer:
-
-    PROPORTION_WIDTH = 0.7
-    MUSTACHE_ANCHOR = numpy.float32([0, -70, -50])
 
     def __init__(self, debug=False):
         self.debug = debug
         self._mustaches = {}
         for mustache_type in list(MustacheType):
             self._mustaches[mustache_type] = Mustache(
-                mustache_type.value, self.PROPORTION_WIDTH
+                mustache_type.value["path"],
+                mustache_type.value["width"],
+                mustache_type.value["anchor"]
             )
 
     def _compute_mustache_box(self, mustache: Mustache):
         """Computes the theorical boudning box of the mustache."""
-        bottom_left_corner = self.MUSTACHE_ANCHOR - numpy.array(
+        bottom_left_corner = mustache.anchor - numpy.array(
             [mustache.width / 2, mustache.height / 2, 0]
         )
-        upper_left_corner = self.MUSTACHE_ANCHOR + numpy.array(
+        upper_left_corner = mustache.anchor + numpy.array(
             [mustache.width / 2, -mustache.height / 2, 0]
         )
-        upper_right_corner = self.MUSTACHE_ANCHOR + numpy.array(
+        upper_right_corner = mustache.anchor + numpy.array(
             [mustache.width / 2, mustache.height / 2, 0]
         )
-        bottom_right_corner = self.MUSTACHE_ANCHOR + numpy.array(
+        bottom_right_corner = mustache.anchor + numpy.array(
             [-mustache.width / 2, mustache.height / 2, 0]
         )
         return numpy.array(
@@ -69,14 +49,8 @@ class MustachePlacer:
             )
         )
 
-    def place_mustache(
-        self,
-        face_image: Image,
-        camera: Camera,
-        face: Face,
-    ):
+    def place_mustache(self,face_image: Image,camera: Camera,face: Face):
         """Place a mustache on a face."""
-        mustache_type=random.choice(list(MustacheType))
         if self.debug:
             drawer = DebugDrawer.instance().drawer
             drawer.rectangle(
@@ -102,6 +76,7 @@ class MustachePlacer:
                 "red",
             )
 
+        mustache_type = random.choice(list(MustacheType))
         mustache = self._mustaches[mustache_type]
         mustache_image = mustache.image
 
@@ -136,7 +111,7 @@ class MustachePlacer:
         if self.debug:
             drawer = DebugDrawer.instance().drawer
             mustache_projected, _ = cv2.projectPoints(
-                self.MUSTACHE_ANCHOR,
+                mustache.anchor,
                 face.rotation,
                 face.translation,
                 camera.matrix,

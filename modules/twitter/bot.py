@@ -8,6 +8,9 @@ from io import BytesIO
 from datetime import *
 from modules.mustache.mustachizer import Mustachizer
 
+#PATH="/home/pi/Bots/Stachebot/"
+PATH="./"
+
 class BotTwitter:
     """Start the StacheBot on Twitter.
 
@@ -19,7 +22,7 @@ class BotTwitter:
         """The constructor."""
         self.debug = debug
         self.lastdate = (datetime.now()-timedelta(hours=2))
-        self.tmp = './img/tmp/'
+        self.tmp = f'{PATH}./img/tmp/'
         self._empty_tmp()
         self.mustachizer = Mustachizer(debug=False)
         self._connect()
@@ -30,7 +33,7 @@ class BotTwitter:
 
     def _get_credentials(self):
         """Getting the credentials in `credentials.json`"""
-        with open('./modules/twitter/credentials.json','r') as f:
+        with open(f'{PATH}./modules/twitter/credentials.json','r') as f:
             token = json.load(f)
         self.consumer_key = token['API_KEY']
         self.consumer_secret = token['API_SECRET_KEY']
@@ -71,7 +74,7 @@ class BotTwitter:
     def _reply_with_twitter_api(self,in_reply_to_status_id=''):
         """Reply to a tweet with a media"""
         if len(os.listdir(self.tmp)) != 0:
-            with open('./modules/twitter/var.json','r') as f:
+            with open(f'{PATH}./modules/twitter/var.json','r') as f:
                 var = json.load(f)
             status = random.choice(var['status'])
             media_ids = [self.api.media_upload(f"{self.tmp}{filename}").media_id_string for filename in os.listdir(self.tmp)]

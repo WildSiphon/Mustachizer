@@ -22,7 +22,7 @@ class BotTwitter:
         """The constructor."""
         self.debug = debug
         self.lastdate = (datetime.now()-timedelta(hours=2))
-        self.tmp = f'{PATH}./img/tmp/'
+        self.tmp = f'{PATH}img/tmp/'
         self._empty_tmp()
         self.mustachizer = Mustachizer(debug=False)
         self._connect()
@@ -33,7 +33,7 @@ class BotTwitter:
 
     def _get_credentials(self):
         """Getting the credentials in `credentials.json`"""
-        with open(f'{PATH}./modules/twitter/credentials.json','r') as f:
+        with open(f'{PATH}modules/twitter/credentials.json','r') as f:
             token = json.load(f)
         self.consumer_key = token['API_KEY']
         self.consumer_secret = token['API_SECRET_KEY']
@@ -71,16 +71,18 @@ class BotTwitter:
         last_mentions = [tweet for tweet in searched_tweets if self.screen_name in [t['screen_name'] for t in tweet['entities']['user_mentions']]]
         self.last_mentions = [tweet for tweet in last_mentions if self.lastdate < datetime.strptime(tweet['created_at'],'%a %b %d %H:%M:%S +0000 %Y')]
 
-    def _reply_with_twitter_api(self,in_reply_to_status_id=''):
+    def _reply_with_twitter_api(self,status='',in_reply_to_status_id=''):
         """Reply to a tweet with a media"""
         if len(os.listdir(self.tmp)) != 0:
-            with open(f'{PATH}./modules/twitter/var.json','r') as f:
+            with open(f'{PATH}modules/twitter/var.json','r') as f:
                 var = json.load(f)
             status = random.choice(var['status'])
             media_ids = [self.api.media_upload(f"{self.tmp}{filename}").media_id_string for filename in os.listdir(self.tmp)]
             self.api.update_status(status=status,media_ids=media_ids,in_reply_to_status_id=in_reply_to_status_id,auto_populate_reply_metadata=True)
         else:
-            self.api.update_status(status='No faces found. Can\'t mustachize :(',in_reply_to_status_id=in_reply_to_status_id,auto_populate_reply_metadata=True)
+            if status == '':
+                status = 'No faces found. Can\'t mustachize :('
+            self.api.update_status(status=status,in_reply_to_status_id=in_reply_to_status_id,auto_populate_reply_metadata=True)
         if self.debug: print("Replied.")
 
     def reply_to_last_mentions(self):
@@ -97,13 +99,15 @@ class BotTwitter:
                 replying_to = self.api.statuses_lookup([tweet['in_reply_to_status_id_str']])[0]._json
                 if 'media' in replying_to['entities']:
                     self.tweet_with_medias = replying_to
-                elif self.debug: print("but replying to something with no media")
+                else:
+                    self._reply_with_twitter_api(status='Could not get any media from the tweet you\'re replying to :(',in_reply_to_status_id=tweet['id_str'])
+                    if self.debug: print("but replying to something with no media")
             else:
                 print("Not a response and no media added to the tweet")
             if self.tweet_with_medias:
                 urls = [media['media_url_https'] for media in self.tweet_with_medias['extended_entities']['media']]
                 self._mustachize_urls(urls)
-                self._reply_with_twitter_api(tweet['id_str'])
+                self._reply_with_twitter_api(in_reply_to_status_id=tweet['id_str'])
                 self._empty_tmp()
         if self.last_mentions:
             self.lastdate = datetime.strptime(self.last_mentions[0]['created_at'],'%a %b %d %H:%M:%S +0000 %Y')

@@ -19,19 +19,16 @@ class Mustachizer:
         self.__mutache_placer = MustachePlacer(debug)
         self.__face_finder = FaceFinder(debug)
 
-    def mustachize(self, image_buffer: io.BytesIO, format_=None):
+    def mustachize(self, image_buffer: io.BytesIO):
         """Place mustaches on an image.
 
         :param image_buffer: The buffer containing the image
         :type image_buffer: io.BytesIO
 
-        :param format_: The format of the image, default to None
-        :type format_: str, optional
-
         :return: The modified image
         :rtype: io.BytesIO
         """
-        image = Image.open(image_buffer, formats=[format_]).convert("RGBA")
+        image = Image.open(image_buffer, formats=["JPEG", "PNG", "GIF"]).convert("RGBA")
         DebugDrawer.instance().load(image)
 
         camera = Camera(image)

@@ -46,7 +46,7 @@ class BotTwitter:
         auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
         auth.secure = True
         auth.set_access_token(self.access_token, self.access_token_secret)
-        self.api = tweepy.API(auth)
+        self.api = tweepy.API(auth,wait_on_rate_limit=True)
 
     def _empty_tmp(self):
         """Empty the dir `img/tmp`."""

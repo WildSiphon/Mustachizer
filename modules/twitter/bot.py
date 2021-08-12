@@ -7,6 +7,7 @@ from urllib.request import urlopen
 from io import BytesIO
 from datetime import *
 from modules.mustache.mustachizer import Mustachizer
+from modules.mustache.sentence_provider import SentenceProvider
 
 #PATH="/home/pi/Bots/Stachebot/"
 PATH="./"
@@ -25,6 +26,7 @@ class BotTwitter:
         self.tmp = f'{PATH}img/tmp/'
         self._empty_tmp()
         self.mustachizer = Mustachizer(debug=False)
+        self.sentence_provider = SentenceProvider()
         self._connect()
         self.name = self.api.me().name
         self.screen_name = self.api.me().screen_name
@@ -74,9 +76,7 @@ class BotTwitter:
     def _reply_with_twitter_api(self,status='',in_reply_to_status_id=''):
         """Reply to a tweet with a media"""
         if len(os.listdir(self.tmp)) != 0:
-            with open(f'{PATH}modules/twitter/var.json','r') as f:
-                var = json.load(f)
-            status = random.choice(var['status'])
+            status = self.sentence_provider.provide()
             media_ids = [self.api.media_upload(f"{self.tmp}{filename}").media_id_string for filename in os.listdir(self.tmp)]
             self.api.update_status(status=status,media_ids=media_ids,in_reply_to_status_id=in_reply_to_status_id,auto_populate_reply_metadata=True)
         else:

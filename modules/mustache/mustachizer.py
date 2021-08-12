@@ -5,6 +5,8 @@ from modules.mustache.mustache_placer import MustachePlacer
 from modules.mustache.face_finder import FaceFinder
 from modules.mustache.camera import Camera
 from modules.mustache.debug_drawer import DebugDrawer
+from modules.mustache.errors import NoFaceFoundError
+from modules.mustache.errors import ImageIncorrectError
 from PIL import Image
 from PIL import ImageSequence
 
@@ -27,20 +29,25 @@ class Mustachizer:
         :param image_buffer: The buffer containing the image
         :type image_buffer: io.BytesIO
 
+        :raises NoFaceFoundError: No face has been found on the image
+
         :return: The modified image
         :rtype: io.BytesIO
         """
-        image = Image.open(image_buffer, formats=["JPEG", "PNG", "GIF"])
+        try:
+            image = Image.open(image_buffer, formats=["JPEG", "PNG", "GIF"])
+        except Exception as e:
+            raise ImageIncorrectError from e
         format_ = image.format
         logging.debug("Format : %s", format_)
-        logging.debug("Frames : %s", image.n_frames)
+        nb_frames = 1 if not hasattr(image, "n_frames") else image.n_frames
+        logging.debug("Frames : %s", nb_frames)
         mustachized_frames = []
         recognized_faces = False
-        mustache_type = None if image.n_frames <= 1 else self.__mutache_placer.choose_mustache()
+        mustache_type = None if nb_frames <= 1 else self.__mutache_placer.choose_mustache()
 
         for image_frame in ImageSequence.Iterator(image):
             image_frame = image_frame.convert("RGBA")
-            logging.debug("Frame !")
             DebugDrawer.instance().load(image_frame)
 
             camera = Camera(image_frame)
@@ -67,7 +74,8 @@ class Mustachizer:
                 )
             output_stream.seek(0)
             return output_stream
-        return -1
+        else:
+            raise NoFaceFoundError()
 
     @property
     def debug(self):

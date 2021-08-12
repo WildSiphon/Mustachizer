@@ -21,9 +21,7 @@ class MustachePlacer:
         self._mustaches = {}
         for mustache_type in list(MustacheType):
             self._mustaches[mustache_type] = Mustache(
-                mustache_type.value["path"],
-                mustache_type.value["width"],
-                mustache_type.value["anchor"]
+                **mustache_type.value
             )
 
     def _compute_mustache_box(self, mustache: Mustache):

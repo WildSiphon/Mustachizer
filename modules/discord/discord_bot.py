@@ -26,6 +26,5 @@ class DiscordBot(discord.Client):
                         print("Found image !")
                         buffer = io.BytesIO()
                         await attachment.save(buffer)
-                        format_ = attachment.content_type.split("/")[-1]
-                        mustachized_images.append(discord.File(self.__mustachizer.mustachize(buffer, format_), filename=attachment.filename))
+                        mustachized_images.append(discord.File(self.__mustachizer.mustachize(buffer), filename=attachment.filename))
                 await message.channel.send("Better like that ;)", files = mustachized_images)

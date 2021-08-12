@@ -1,9 +1,11 @@
+import io
 import logging
 import numpy
 import sys
 from PIL import Image
 from PIL import ImageShow
 
+from modules.mustache.mustachizer import Mustachizer
 from modules.mustache.mustache_placer import MustachePlacer
 from modules.mustache.face_finder import FaceFinder
 from modules.mustache.debug_drawer import DebugDrawer
@@ -11,21 +13,22 @@ from modules.mustache.camera import Camera
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-placer = MustachePlacer(debug=False)
-finder = FaceFinder(debug=False)
+debug = False
 
-image = Image.open("./img/GG.png")
-logging.debug("Image size: %s", image.size)
+placer = MustachePlacer(debug)
+finder = FaceFinder(debug)
+mustachizer = Mustachizer(debug)
 
-camera = Camera(image, numpy.zeros((4, 1)))
+buffer = None
 
-DebugDrawer.instance().load(image)
+with open("./img/face.gif", "rb") as image_file:
+    buffer = io.BytesIO(image_file.read())
 
-faces = finder.find_faces(image, camera)
-logging.debug("Found %d face(s) !", len(faces))
-logging.debug("Faces:\n%s", faces)
+image = mustachizer.mustachize(buffer)
 
-for face in faces:
-    placer.place_mustache(image, camera, face)
+with open("/tmp/face.gif", "wb") as save_file:
+    save_file.write(image.read())
+
+image = Image.open(image, formats=["JPEG", "PNG", "GIF"])
 
 ImageShow.show(image)

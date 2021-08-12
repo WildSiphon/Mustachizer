@@ -47,7 +47,10 @@ class MustachePlacer:
             )
         )
 
-    def place_mustache(self,face_image: Image,camera: Camera,face: Face):
+    def choose_mustache(self):
+        return random.choice(list(MustacheType))
+
+    def place_mustache(self,face_image: Image,camera: Camera,face: Face, mustache_type=None):
         """Place a mustache on a face."""
         if self.debug:
             drawer = DebugDrawer.instance().drawer
@@ -74,7 +77,7 @@ class MustachePlacer:
                 "red",
             )
 
-        mustache_type = random.choice(list(MustacheType))
+        mustache_type = self.choose_mustache() if mustache_type is None else mustache_type
         mustache = self._mustaches[mustache_type]
         mustache_image = mustache.image
 

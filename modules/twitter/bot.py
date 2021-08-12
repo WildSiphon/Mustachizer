@@ -58,7 +58,7 @@ class BotTwitter:
         for count in range(len(urls)):
             url_file = urlopen(urls[count])
             image_buffer = url_file.read()
-            output = self.mustachizer.mustachize(BytesIO(image_buffer),"JPEG")
+            output = self.mustachizer.mustachize(BytesIO(image_buffer))
             if output != -1:
                 with open(f"{self.tmp}{count}",'wb') as out:
                     out.write(output.read())

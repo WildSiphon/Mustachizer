@@ -90,7 +90,7 @@ class BotTwitter:
             < datetime.strptime(tweet["created_at"], "%a %b %d %H:%M:%S +0000 %Y")
         ]
 
-    def _reply_with_twitter_api(self, medias, status="", in_reply_to_status_id=""):
+    def _reply_with_twitter_api(self, medias=None, status="", in_reply_to_status_id=""):
         """Reply to a tweet with a media"""
         if len(medias) != 0:
             status = self.sentence_provider.provide()
@@ -129,20 +129,23 @@ class BotTwitter:
                     print('Type "media"', end=" ")
                 self.tweet_with_medias = tweet
             elif tweet["in_reply_to_status_id_str"]:
-                if self.debug:
-                    print('Type "reply"', end=" ")
-                replying_to = self.api.statuses_lookup(
-                    [tweet["in_reply_to_status_id_str"]]
-                )[0]._json
-                if "media" in replying_to["entities"]:
-                    self.tweet_with_medias = replying_to
+                if tweet["in_reply_to_user_id_str"] == self.id:
+                    print("Responding to a mustache, everything fine.")
                 else:
-                    self._reply_with_twitter_api(
-                        status="Could not get any media from the tweet you're replying to :(",
-                        in_reply_to_status_id=tweet["id_str"],
-                    )
                     if self.debug:
-                        print("but replying to something with no media")
+                        print('Type "reply"', end=" ")
+                    replying_to = self.api.statuses_lookup(
+                        [tweet["in_reply_to_status_id_str"]]
+                    )[0]._json
+                    if "media" in replying_to["entities"]:
+                        self.tweet_with_medias = replying_to
+                    # else:
+                    #     self._reply_with_twitter_api(
+                    #         status="Could not get any media from the tweet you're replying to :(",
+                    #         in_reply_to_status_id=tweet["id_str"],
+                    #     )
+                    #     if self.debug:
+                    #         print("but replying to something with no media")
             else:
                 print("Not a response and no media added to the tweet")
             if self.tweet_with_medias:

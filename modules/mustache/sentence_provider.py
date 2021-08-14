@@ -1,11 +1,13 @@
 import random
 import json
 
+#SERVER_PATH="/home/pi/Bots/Stachebot/"
+SERVER_PATH="./"
 
 class SentenceProvider:
     """Provide sentences for responses."""
 
-    PATH = "./modules/mustache/sentences.json"
+    PATH = f"{SERVER_PATH}modules/mustache/sentences.json"
 
     def __init__(self):
         with open(self.PATH, "r") as sentence_file:

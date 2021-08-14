@@ -56,17 +56,17 @@ class BotTwitter:
         if self.debug:
             print(f"{len(urls)} pictures :")
         medias = []
-        for url in len(urls):
+        for url in urls:
             url_file = urlopen(url)
             image_buffer = url_file.read()
             try:
                 output = self.mustachizer.mustachize(BytesIO(image_buffer))
                 medias.append(output)
                 if self.debug:
-                    print(f"\t{url}.Done")
+                    print(f"\t{url} -> Done")
             except NoFaceFoundError:
                 if self.debug:
-                    print(f"\t{url}.No Faces")
+                    print(f"\t{url} -> No Faces")
         return medias
 
     def _get_last_mentions(self, max_tweets=1000):
@@ -95,7 +95,7 @@ class BotTwitter:
         if len(medias) != 0:
             status = self.sentence_provider.provide()
             media_ids = [
-                self.api.media_upload(file=media).media_id_string
+                self.api.media_upload(file=media,filename="").media_id_string
                 for media in medias
             ]
             self.api.update_status(
@@ -106,7 +106,7 @@ class BotTwitter:
             )
         else:
             if status == "":
-                status = "No faces found. Can't mustachize :("
+                status = "No face found. Can't mustachize :("
             self.api.update_status(
                 status=status,
                 in_reply_to_status_id=in_reply_to_status_id,

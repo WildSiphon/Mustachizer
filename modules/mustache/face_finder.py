@@ -11,7 +11,7 @@ from modules.mustache.camera import Camera
 #PATH="/home/pi/Bots/Stachebot/"
 PATH="./"
 
-faceCascade = cv2.CascadeClassifier(f"{PATH}./models/haarcascade/frontalface_default.xml")
+faceCascade = cv2.CascadeClassifier(f"{PATH}models/haarcascade/frontalface_default.xml")
 
 
 class FaceFinder:
@@ -32,7 +32,7 @@ class FaceFinder:
     def __init__(self, debug=False):
         self.debug = debug
         self._face_marker = cv2.face.createFacemarkLBF()
-        self._face_marker.loadModel(f"{PATH}./models/face_marker_models/lbf.model")
+        self._face_marker.loadModel(f"{PATH}models/face_marker_models/lbf.model")
 
     def _compute_face_projections(self, cv2_image, camera: Camera, faces):
         _, face_marks = self._face_marker.fit(cv2_image, faces)

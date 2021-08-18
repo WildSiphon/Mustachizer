@@ -1,5 +1,3 @@
-#!/home/pi/Bots/Stachebot/ENV/bin/python3
-
 from time import sleep
 from modules.twitter.twitter_bot import BotTwitter
 

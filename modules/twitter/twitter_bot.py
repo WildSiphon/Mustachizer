@@ -63,10 +63,10 @@ class BotTwitter:
                 output = self.mustachizer.mustachize(BytesIO(image_buffer))
                 medias.append(output)
                 if self.debug:
-                    print(f"\t{url} -> Done")
+                    print(f"\t{url} -> Mustachized")
             except NoFaceFoundError:
                 if self.debug:
-                    print(f"\t{url} -> No Faces")
+                    print(f"\t{url} -> No Faces found")
         return medias
 
     def _get_last_mentions(self, max_tweets=1000):
@@ -124,30 +124,34 @@ class BotTwitter:
             )
         for tweet in self.last_mentions:
             self.tweet_with_medias = None
-            if "media" in tweet["entities"]:
+            if "retweeted_status" in tweet:
                 if self.debug:
-                    print('Type "media"', end=" ")
+                    print(" Someone retweeted a mention. Ignoring.")
+            elif "media" in tweet["entities"]:
+                if self.debug:
+                    print(' Type "media"', end=" ")
                 self.tweet_with_medias = tweet
             elif tweet["in_reply_to_status_id_str"]:
                 if tweet["in_reply_to_user_id_str"] == self.id:
-                    print("Responding to a mustache, everything fine.")
+                    if self.debug:
+                        print(" Someone responded to a mustache. Ignoring.")
                 else:
                     if self.debug:
-                        print('Type "reply"', end=" ")
+                        print(' Type "reply"', end=" ")
                     replying_to = self.api.statuses_lookup(
                         [tweet["in_reply_to_status_id_str"]]
                     )[0]._json
                     if "media" in replying_to["entities"]:
                         self.tweet_with_medias = replying_to
-                    # else:
+                    else:
                     #     self._reply_with_twitter_api(
                     #         status="Could not get any media from the tweet you're replying to :(",
                     #         in_reply_to_status_id=tweet["id_str"],
                     #     )
-                    #     if self.debug:
-                    #         print("but replying to something with no media")
+                        if self.debug:
+                            print(" No media found. Ignoring.")
             else:
-                print("Not a response and no media added to the tweet")
+                print(" Not a response nor a RT and no media added to the tweet")
             if self.tweet_with_medias:
                 urls = [
                     media["media_url_https"]

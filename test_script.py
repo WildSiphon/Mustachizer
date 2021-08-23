@@ -29,6 +29,6 @@ image = mustachizer.mustachize(buffer)
 with open("/tmp/face.gif", "wb") as save_file:
     save_file.write(image.read())
 
-image = Image.open(image, formats=["JPEG", "PNG", "GIF"])
+image = Image.open(image, formats=mustachizer.supported_formats)
 
 ImageShow.show(image)

@@ -7,6 +7,8 @@ from modules.mustache.camera import Camera
 from modules.mustache.debug_drawer import DebugDrawer
 from modules.mustache.errors import NoFaceFoundError
 from modules.mustache.errors import ImageIncorrectError
+from modules.mustache.mustache_type import MustacheType
+
 from PIL import Image
 from PIL import ImageSequence
 
@@ -20,10 +22,11 @@ class Mustachizer:
 
     def __init__(self, debug=False):
         self.__debug = debug
-        self.__mutache_placer = MustachePlacer(debug)
+        self.__supported_formats = ["JPEG", "PNG", "GIF"]
+        self.__mustache_placer = MustachePlacer(debug)
         self.__face_finder = FaceFinder(debug)
 
-    def mustachize(self, image_buffer: io.BytesIO):
+    def mustachize(self, image_buffer: io.BytesIO, mustache_name=None):
         """Place mustaches on an image.
 
         :param image_buffer: The buffer containing the image
@@ -35,7 +38,7 @@ class Mustachizer:
         :rtype: io.BytesIO
         """
         try:
-            image = Image.open(image_buffer, formats=["JPEG", "PNG", "GIF"])
+            image = Image.open(image_buffer, formats=self.__supported_formats)
         except Exception as e:
             raise ImageIncorrectError from e
         format_ = image.format
@@ -44,7 +47,8 @@ class Mustachizer:
         logging.debug("Frames : %s", nb_frames)
         mustachized_frames = []
         recognized_faces = False
-        mustache_type = None if nb_frames <= 1 else self.__mutache_placer.choose_mustache()
+        # mustache_type = None if nb_frames <= 1 else self.__mutache_placer.choose_mustache()
+        mustache_type = None if nb_frames <= 1 and not mustache_name else self.__mustache_placer.choose_mustache(mustache_name)
 
         for image_frame in ImageSequence.Iterator(image):
             image_frame = image_frame.convert("RGBA")
@@ -55,7 +59,7 @@ class Mustachizer:
             if faces:
                 recognized_faces = True
                 for face in faces:
-                    self.__mutache_placer.place_mustache(image_frame, camera, face, mustache_type)
+                    self.__mustache_placer.place_mustache(image_frame, camera, face, mustache_type)
             mustachized_frames.append(image_frame)
 
         if recognized_faces:
@@ -84,3 +88,7 @@ class Mustachizer:
     @debug.setter
     def debug(self, value: bool):
         self.__debug = value
+
+    @property
+    def supported_formats(self):
+        return self.__supported_formats

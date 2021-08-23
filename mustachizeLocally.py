@@ -72,7 +72,7 @@ if __name__ == '__main__':
         dest="listing",
         action="store_true",
         default=False,
-        help="list the mustaches types",
+        help="list all the mustaches types",
     )
     args = parser.parse_args()
     

@@ -31,24 +31,35 @@ Just kidding, we haven't gone that far.
 
 ### Local use
 
-If you want to mustachize your pictures by yourself, simply run the `main.py` (we still have to create it 🙄) :
+If you want to mustachize your pictures by yourself, simply run `mustachizeLocally.py` :
 
 ```bash
-~$ python3 main.py -options
+~$ python3 mustachizeLocally.py "FILE"
 ```
 
-**Options available** (currently none because `main.py` doesn't exist)
+**Options available**
 
 ```
-[options]
--t --type TYPE	Type of the mustache
--l --list 		Print a list of all available mustaches
-[...]
+usage: mustachizeLocally.py [-h] [-t [MUSTACHE_NAME]] [-o [OUTPUT_LOCATION]] [-l] [PATHS [PATHS ...]]
+
+MUSTACHE THE WORLD!! Script to mustachize everything... or almost
+
+positional arguments:
+  PATHS                 path(s) to the file(s)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -t [MUSTACHE_NAME]    choose mustache type (default is "random")
+  -o [OUTPUT_LOCATION]  choose output location (default is "./output/")
+  -l                    list all the mustaches types
+
+supported media format: .png .jpeg .gif
 ```
 
-### [Twitter use](https://twitter.com/RealStachBot)
+### Twitter use
 
 [@RealStachBot](https://twitter.com/RealStachBot) is already on twitter. If you want it to mustachize something, just tag it :
+
 + When you **post** a picture
 + In the **reply** of someone's picture
 
@@ -76,7 +87,10 @@ Now that all the script kiddies are trying to mustachize some stuff without read
 
 ## <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f4dd.png" alt="memo" style="zoom:33%;" /> Stuff to add
 
-+ Creating `main.py` to mustachize locally
++ ~~Creating `main.py` to mustachize locally~~
++ Improve output of `mustachizeLocally`
++ Finish the README
++ Comment all the code
 + Continue testing the mustachizer to be sure that it never crash 
 + Adding more sentences when bot is posting result of mustachisation
 + MORE MUSTACHES (maybe not… but maybe more)

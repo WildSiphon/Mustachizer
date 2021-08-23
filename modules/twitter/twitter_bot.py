@@ -10,7 +10,7 @@ from modules.mustache.mustachizer import Mustachizer
 from modules.mustache.errors import NoFaceFoundError
 from modules.mustache.sentence_provider import SentenceProvider
 
-#PATH="/home/pi/Bots/Stachebot/"
+# PATH="/home/pi/Bots/Stachebot/"
 PATH = "./"
 
 
@@ -90,7 +90,7 @@ class BotTwitter:
             < datetime.strptime(tweet["created_at"], "%a %b %d %H:%M:%S +0000 %Y")
         ]
 
-    def _reply_with_twitter_api(self, medias=None, status="", in_reply_to_status_id=None):
+    def _reply_with_twitter_api(self, medias=None, status="", in_reply_to_status_id=""):
         """Reply to a tweet with a media"""
         if len(medias) != 0:
             status = self.sentence_provider.provide()
@@ -123,7 +123,6 @@ class BotTwitter:
                 f"{datetime.now()-timedelta(hours=2)} GMT +00:00 : {len(self.last_mentions)} new mention"
             )
         for tweet in self.last_mentions:
-            print(tweet)
             self.tweet_with_medias = None
             if "retweeted_status" in tweet:
                 if self.debug:
@@ -142,7 +141,6 @@ class BotTwitter:
                     replying_to = self.api.statuses_lookup(
                         [tweet["in_reply_to_status_id_str"]]
                     )[0]._json
-                    print(replying_to)
                     if "media" in replying_to["entities"]:
                         self.tweet_with_medias = replying_to
                     else:

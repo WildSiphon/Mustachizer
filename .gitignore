@@ -3,3 +3,4 @@ credentials*
 Pipfile.lock
 ENV
 modules/discord/.token
+*output*

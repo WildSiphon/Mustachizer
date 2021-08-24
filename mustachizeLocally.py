@@ -9,6 +9,10 @@ from modules.mustache.mustache_type import MustacheType
 MUSTACHES_LIST = [m.name for m in MustacheType]
 MEDIA_FORMATS = json.load(open("./img/formats.json", "r"))
 
+def printBanner():
+    for line in open("assets/banner.txt","r"):
+        print(line.replace('\n',''))
+
 def printMustacheList():
     print('Available mustaches are :',end='\n - ')
     print(*MUSTACHES_LIST,sep='\n - ',end='\n'*2)
@@ -102,6 +106,8 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
     
+    printBanner()
+
     if args.listing: printMustacheList()
     if args.paths:
         files = args.paths

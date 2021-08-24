@@ -72,13 +72,13 @@ Mustachization works fine with image…![demo_img](assets/demo_img.gif)
 
 The bot doesn't mustachize when you tag it in a quote RT of a tweet with media.
 
-You can publish your own bot based on our work if, and only if, <u>it brings something different to Twitter</u>. Otherwise make a pull request.
-If you publish your own bot based on our work, please <u>link the project and our bot in the account description</u>.
+You can publish your own bot based on our work if, and only if, ***it brings something different to Twitter***. Otherwise make a pull request.
+If you publish your own bot based on our work, please ***link the project and our bot in the account description***.
 
 ### Discord use
 
 We published the code for a discord bot but didn't make one public.
-Feel free to use our project for personal use only, but <u>don't make a public bot with it</u>.
+Feel free to use our project for personal use only, but ***don't make a public bot with it***.
 
 ## <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f4da.png" alt="books" style="zoom:33%;" /> Code review
 

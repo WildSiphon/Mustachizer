@@ -7,12 +7,6 @@ PATH="./"
 class MustacheType(Enum):
     """Enumerate all the different staches from our collection."""
 
-    # DEFAULT = {
-    #    "name":"DEFAULT",
-    #    "image_path":f"{PATH}img/moustache.png",
-    #    "anchor":numpy.float32([0, -70, -50]),
-    #    "width":0.7,
-    # }
     BAMBINO = {
         "name":"BAMBINO",
         "image_path":f"{PATH}img/mustaches_collection/Bambino.png",

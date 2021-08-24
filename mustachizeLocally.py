@@ -1,22 +1,42 @@
 import io
-import os
+import json
+import os,sys
 import argparse
+
 from modules.mustache.mustachizer import Mustachizer
 from modules.mustache.mustache_type import MustacheType
 
-def main(files,mustache_name,output_location):
+MUSTACHES_LIST = [m.name for m in MustacheType]
+MEDIA_FORMATS = json.load(open("./img/formats.json", "r"))
+
+def printMustacheList():
+    print('Available mustaches are :',end='\n - ')
+    print(*MUSTACHES_LIST,sep='\n - ',end='\n'*2)
+
+def showMedia(filepath):
+    try:
+        if sys.platform.startswith('linux'):
+            os.system(f"xdg-open {filepath}")
+        elif sys.platform.startswith('win32'):
+            os.system(f"powershell -c {filepath}")
+        elif sys.platform.startswith('darwin'):
+            os.system(f"open {filepath}")
+    except Exception as e:
+        print(f"Can\'t open the mustachized media : {e}")
+
+def main(files,mustache_name,output_location,showing):
     mustachizer = Mustachizer(debug=False)
 
     for file in files:
-        print(f"\nACTIVE MEDIA: {file}")
+        print(f"\nACTIVE MEDIA: \'{file}\'")
         if not os.path.isfile(file):
             print("Not a file.\nMustachization is ignored.")
             continue
-        if file.split('.')[-1].upper() not in mustachizer.supported_formats:
-            print(f"Media not supported. Only supporting {', '.join(mustachizer.supported_formats)}.")
+        if file.split('.')[-1].upper() not in MEDIA_FORMATS["supported"]:
+            print(f"Media not supported. Only supporting {', '.join(MEDIA_FORMATS['supported'])}.")
             print("Mustachization is ignored.")
             continue
-        print(f"SELECTED MUSTACHE: {mustache_name}")
+        print(f"SELECTED MUSTACHE: {mustache_name if mustache_name else '*choosen ramdomly*'}")
 
         buffer = None
 
@@ -29,24 +49,23 @@ def main(files,mustache_name,output_location):
             os.mkdir("./output/")
         
         output_name = '/'+file.split('/')[-1].split('.')[0]+'_mustachized.'+file.split('.')[-1]
-        with open( output_location+output_name, "wb") as save_file:
+        filepath = output_location+output_name
+        with open(filepath, "wb") as save_file:
             save_file.write(image.read())
         
         print("Mustachization successfully done.")
 
-def printMustacheList():
-    print('Available mustaches are :')
-    print(*[' - '+m.name for m in MustacheType],sep='\n')
+        if showing: showMedia(filepath=filepath)
 
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(
         description="MUSTACHE THE WORLD!! Script to mustachize everything... or almost",
-        epilog=f"supported media format: .png .jpeg .gif"
+        epilog=f"supported media format: {', '.join(MEDIA_FORMATS['supported'])}"
     )
     parser.add_argument(
-        metavar="PATHS",
-        dest="files",
+        metavar="FILES",
+        dest="paths",
         type=str,
         nargs="*",
         help="path(s) to the file(s)",
@@ -68,18 +87,25 @@ if __name__ == '__main__':
         help="choose output location (default is \"./output/\")",
     )
     parser.add_argument(
-        "-l",
+        "-l","--list",
         dest="listing",
         action="store_true",
         default=False,
         help="list all the mustaches types",
     )
+    parser.add_argument(
+        "-s","--show",
+        dest="showing",
+        action="store_true",
+        default=False,
+        help="show the mustachized media",
+    )
     args = parser.parse_args()
     
     if args.listing: printMustacheList()
-    if args.files:
-        files = args.files
-        if args.mustache_name.upper() not in [m.name for m in MustacheType]:
+    if args.paths:
+        files = args.paths
+        if args.mustache_name.upper() not in MUSTACHES_LIST:
             if args.mustache_name != "random":
                 print(f"\"{args.mustache_name}\" is not a valid mustache. A random \'stache will be assigned")
                 printMustacheList()
@@ -93,10 +119,11 @@ if __name__ == '__main__':
             print(f"Can\'t find directory \"{args.output_location}\". Mustachized media(s) will be saved in \"./output/\"")
             output_location = "./output/"
     else:
-        exit('Please indicate at least one media to mustachize\nmain.py [-h] for more informations')
+        exit('Please indicate at least one media to mustachize\nmustachizeLocally.py [-h] for more informations')
 
     main(
         files=files,
         mustache_name=mustache_name,
-        output_location=output_location
+        output_location=output_location,
+        showing=args.showing,
     )

@@ -34,27 +34,34 @@ Just kidding, we haven't gone that far.
 If you want to mustachize your pictures by yourself, simply run `mustachizeLocally.py` :
 
 ```bash
-~$ python3 mustachizeLocally.py "FILE"
+~$ python3 mustachizeLocally.py --show "FILE"
 ```
 
 **Options available**
 
 ```
-usage: mustachizeLocally.py [-h] [-t [MUSTACHE_NAME]] [-o [OUTPUT_LOCATION]] [-l] [PATHS [PATHS ...]]
+usage: mustachizeLocally.py [-h] [-t [MUSTACHE_NAME]] [-o [OUTPUT_LOCATION]] [-l] [-s] [FILES [FILES ...]]
 
 MUSTACHE THE WORLD!! Script to mustachize everything... or almost
 
 positional arguments:
-  PATHS                 path(s) to the file(s)
+  FILES                 path(s) to the file(s)
 
 optional arguments:
   -h, --help            show this help message and exit
   -t [MUSTACHE_NAME]    choose mustache type (default is "random")
   -o [OUTPUT_LOCATION]  choose output location (default is "./output/")
-  -l                    list all the mustaches types
+  -l, --list            list all the mustaches types
+  -s, --show            show the mustachized media
 
-supported media format: .png .jpeg .gif
+supported media format: BAY, BW, CR2, CRW, DNG, EMF, EMZ, G3F, G3N, GIF, HDP, JFIF, JP2, JPC, JPE, JPEG, JPG, MRW, NEF, NRW, ORF, PCC, PDD, PEF, PNG, PXM, RAF, RAW, RLE, SCR, SRF, TARGA, WMF, X3F, XCF
 ```
+
+**Demo**
+
+Mustachization works fine with image…![demo_img](assets/demo_img.gif)
+
+…or gif !![demo_gif](assets/demo_gif.gif)
 
 ### Twitter use
 
@@ -83,7 +90,7 @@ Now that all the script kiddies are trying to mustachize some stuff without read
 
 #### Class diagram
 
-![Class Diagram](puml/out/class_diagram/class_diagram.svg)
+![Class Diagram](assets/puml/out/class_diagram/class_diagram.svg)
 
 ## <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f4dd.png" alt="memo" style="zoom:33%;" /> Stuff to add
 

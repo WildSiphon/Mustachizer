@@ -12,8 +12,8 @@ If you want to use our work locally, just follow instructions below :
 ### Using `requirements.txt`
 
 ```bash
-git clone https://github.com/WildSiphon/Stachebot.git
-cd Stachebot
+git clone https://github.com/WildSiphon/Mustachizer.git
+cd Mustachizer
 pip install -r requirements.txt
 ```
 
@@ -34,13 +34,13 @@ Just kidding, we haven't gone that far.
 If you want to mustachize your pictures by yourself, simply run `mustachizeLocally.py` :
 
 ```bash
-~$ python3 mustachizeLocally.py --show "FILE"
+~$ python3 mustachizer.py --show "FILE"
 ```
 
 **Options available**
 
 ```
-usage: mustachizeLocally.py [-h] [-t [MUSTACHE_NAME]] [-o [OUTPUT_LOCATION]] [-l] [-s] [FILES [FILES ...]]
+usage: mustachizer.py [-h] [-t [MUSTACHE_NAME]] [-o [OUTPUT_LOCATION]] [-l] [-s] [FILES [FILES ...]]
 
 MUSTACHE THE WORLD!! Script to mustachize everything... or almost
 
@@ -59,9 +59,7 @@ supported media format: BAY, BW, CR2, CRW, DNG, EMF, EMZ, G3F, G3N, GIF, HDP, JF
 
 **Demo**
 
-Mustachization works fine with image…![demo_img](assets/demo_img.gif)
-
-…or gif !![demo_gif](assets/demo_gif.gif)
+Mustachization works fine with image or gif…![demo](assets/demo.gif)
 
 ### Twitter use
 
@@ -94,8 +92,8 @@ Now that all the script kiddies are trying to mustachize some stuff without read
 
 ## <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f4dd.png" alt="memo" style="zoom:33%;" /> Stuff to add
 
-+ ~~Creating `main.py` to mustachize locally~~
-+ Improve output of `mustachizeLocally`
++ ~~Creating `mustachizer.py` to mustachize locally~~
++ Improve output of `mustachizer`
 + Finish the README
 + Comment all the code
 + Continue testing the mustachizer to be sure that it never crash 

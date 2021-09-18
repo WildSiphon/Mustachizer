@@ -125,7 +125,7 @@ if __name__ == '__main__':
             print(f"Can\'t find directory \"{args.output_location}\". Mustachized media(s) will be saved in \"./output/\"")
             output_location = "./output/"
     else:
-        exit('Please indicate at least one media to mustachize\nmustachizeLocally.py [-h] for more informations')
+        exit('Please indicate at least one media to mustachize\nmustachizer.py [-h] for more informations')
 
     main(
         files=files,

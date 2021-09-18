@@ -1,14 +1,17 @@
-import tweepy
-import json
-import requests
 import os
+import json
+import tweepy
 import random
+import requests
+
 from io import BytesIO
 from datetime import *
+from dateutil import parser
 from moviepy.editor import *
 from urllib.request import urlopen
-from modules.mustache.mustachizer import Mustachizer
+
 from modules.mustache.errors import NoFaceFoundError
+from modules.mustache.mustachizer import Mustachizer
 from modules.mustache.sentence_provider import SentenceProvider
 
 # PATH="/home/pi/Bots/Stachebot/"
@@ -25,7 +28,7 @@ class BotTwitter:
     def __init__(self, debug=False):
         """The constructor."""
         self.__debug = debug
-        self.__lastdate = datetime.now() - timedelta(hours=2)
+        self.__lastdate = datetime.now(timezone.utc)
         self.__mustachizer = Mustachizer(debug=False)
         self.__sentence_provider = SentenceProvider()
         self.__token = self._get_credentials()
@@ -145,8 +148,7 @@ class BotTwitter:
 
         return [
             tweet for tweet in last_mentions
-            if self.__lastdate
-            < datetime.strptime(tweet["created_at"], "%a %b %d %H:%M:%S +0000 %Y")
+            if self.__lastdate < parser.parse(tweet["created_at"])
         ]
 
     def _reply_with_twitter_api(self, medias=None, status="", in_reply_to_status_id=""):
@@ -188,13 +190,13 @@ class BotTwitter:
         if self.__debug:
             print("Replied.")
 
-    def reply_to_last_mentions(self):
+    def _reply_to_last_mentions(self):
         """Responds to all mentions that have appeared during the last period of time."""
         last_mentions = self._get_last_mentions()
 
         if self.__debug and len(last_mentions) != 0:
             print(
-                f"{datetime.now()-timedelta(hours=2)} GMT +00:00 : {len(last_mentions)} new mention"
+                f"{datetime.now(timezone.utc)} UTC : {len(last_mentions)} new mention"
             )
 
         for tweet in last_mentions:
@@ -238,7 +240,8 @@ class BotTwitter:
 
             # The mention comes from something else (QRT...)
             else:
-                print(" Not a response nor a RT and no media added to the tweet")
+                if self.__debug:
+                    print(" Not a response nor a RT and no media added to the tweet")
             
             # If good conditions were reunited
             if tweet_with_medias:
@@ -257,6 +260,12 @@ class BotTwitter:
 
         # Update date with date of last mention
         if last_mentions:
-            self.__lastdate = datetime.strptime(
-                last_mentions[0]["created_at"], "%a %b %d %H:%M:%S +0000 %Y"
-            )
+            self.__lastdate = parser.parse(last_mentions[0]["created_at"])
+
+    def run(self):
+        while True:
+            try:
+                self._reply_to_last_mentions()
+            except tweepy.TweepError as e:
+                if self.__debug:
+                    print(e)

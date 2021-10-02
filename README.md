@@ -92,7 +92,7 @@ The selected part of the image is then passed through a [Local Binary Feature Fa
 You can see the result here :
 ![Before/After Detection](assets/before_after.jpg)
 
-The facemarker outputs a lot points which we ignore.
+The facemarker outputs a lot of points which we ignore.
 
 Our reference points are in blue on the picture.
 

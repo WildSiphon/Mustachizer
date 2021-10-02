@@ -82,7 +82,39 @@ Feel free to use our project for personal use only, but ***don't make a public b
 
 Now that all the script kiddies are trying to mustachize some stuff without reading more, we can talk about how the code works with y'all real mustache growers.
 
-//Stuff with debug pictures and more
+The first toward mustachization is to detect the face.
+This is done with a [Cascade Classifier](https://docs.opencv.org/4.5.3/db/d28/tutorial_cascade_classifier.html) (depicted in red in the following image).
+
+The goal is to eliminate the big chunks of the image which don't contain any face.
+
+The selected part of the image is then passed through a [Local Binary Feature Facemarker](https://docs.opencv.org/3.4.15/javadoc/org/opencv/face/FacemarkLBF.html) which is essentially an AI specialised in putting reference points on a face.
+
+You can see the result here :
+![Before/After Detection](assets/before_after.jpg)
+
+The facemarker outputs a lot points which we ignore.
+
+Our reference points are in blue on the picture.
+
+We then map those points to a virtual face model using (Perspective N Points solving algorithm)[https://shimat.github.io/opencvsharp_docs/html/64263f79-df37-20d6-0753-daf54d958ffe.htm].
+
+It determines the rotation and translation of the face needed to match the two sets of points like shown in the following picture :
+!(PnP)[https://docs.opencv.org/master/pnp.jpg]
+
+Beside, we compute a rectangle on the plane parallel to the face.
+This rectangle is the mustache's bounding box.
+
+We can now use the rotation and translation of the face to determine the perspective transformation matrix to apply to put the flat mustache image into the said box.
+
+We can see the result here :
+
+![Perspective process](assets/mustache_perspective.jpg)
+
+**Et voilà !**
+
+You can now enjoy a pretty mustache !
+
+![Final result](assets/mustachized_final.jpg)
 
 ### Design
 

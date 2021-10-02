@@ -31,7 +31,7 @@ Just kidding, we haven't gone that far.
 
 ### Local use
 
-If you want to mustachize your pictures by yourself, simply run `mustachizeLocally.py` :
+If you want to mustachize your pictures by yourself, simply run `mustachizer.py` :
 
 ```bash
 ~$ python3 mustachizer.py --show "FILE"

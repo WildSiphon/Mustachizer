@@ -96,10 +96,11 @@ The facemarker outputs a lot points which we ignore.
 
 Our reference points are in blue on the picture.
 
-We then map those points to a virtual face model using (Perspective N Points solving algorithm)[https://shimat.github.io/opencvsharp_docs/html/64263f79-df37-20d6-0753-daf54d958ffe.htm].
+We then map those points to a virtual face model using [Perspective N Points solving algorithm](https://shimat.github.io/opencvsharp_docs/html/64263f79-df37-20d6-0753-daf54d958ffe.htm).
 
 It determines the rotation and translation of the face needed to match the two sets of points like shown in the following picture :
-!(PnP)[https://docs.opencv.org/master/pnp.jpg]
+
+![PnP](https://docs.opencv.org/master/pnp.jpg)
 
 Beside, we compute a rectangle on the plane parallel to the face.
 This rectangle is the mustache's bounding box.

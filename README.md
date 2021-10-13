@@ -17,10 +17,12 @@ cd Mustachizer
 pip install -r requirements.txt
 ```
 
-### Using `Pipfile`
+### Using `Pipenv`
 
 ```bash
-example
+git clone https://github.com/WildSiphon/Mustachizer.git
+cd Mustachizer
+pipenv shell
 ```
 
 ### Using `docker`

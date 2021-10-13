@@ -33,6 +33,7 @@ class Mustachizer:
         :type image_buffer: io.BytesIO
 
         :raises NoFaceFoundError: No face has been found on the image
+        :raises ImageIncorrectError: The provided image is not in the correct format
 
         :return: The modified image
         :rtype: io.BytesIO

@@ -56,7 +56,7 @@ class BotTwitter:
         )
         api = tweepy.API(auth, wait_on_rate_limit=True)
 
-        logging.debug(f"Connected to '{api.me().name}' @{api.me().screen_name}")
+        logging.info(f"Connected to '{api.me().name}' @{api.me().screen_name}")
         return api
 
     def _download_media_from_url(self, url, convert_to_gif=False):
@@ -102,7 +102,7 @@ class BotTwitter:
         :return: mustachized medias
         :rtype: list of io.BytesIO
         """
-        logging.debug(f"{len(medias)} medias :")
+        logging.info(f"{len(medias)} medias :")
 
         mustachized_medias = []
         for media in medias:
@@ -120,9 +120,9 @@ class BotTwitter:
             try:
                 output = self.__mustachizer.mustachize(BytesIO(image_buffer))
                 mustachized_medias.append(output)
-                logging.debug(f"\t{url} -> Mustachized")
+                logging.info(f"\t{url} -> Mustachized")
             except NoFaceFoundError:
-                logging.debug(f"\t{url} -> No Faces found")
+                logging.info(f"\t{url} -> No Faces found")
             except ImageIncorrectError as e:
                 logging.error(e)
 
@@ -190,14 +190,14 @@ class BotTwitter:
                 auto_populate_reply_metadata=True,
             )
 
-        logging.debug("Replied.")
+        logging.info("Replied.")
 
     def _reply_to_last_mentions(self):
         """Responds to all mentions that have appeared during the last period of time."""
         last_mentions = self._get_last_mentions()
 
         if len(last_mentions) != 0:
-            logging.debug(
+            logging.info(
                 f"{datetime.now(timezone.utc)} UTC : {len(last_mentions)} new mention"
             )
 
@@ -206,11 +206,11 @@ class BotTwitter:
 
             # The mention is caused by a RT
             if "retweeted_status" in tweet:
-                logging.debug("Mention type : retweet")
+                logging.info("Mention type : retweet")
 
             # The mention is in a tweet with media
             elif "media" in tweet["entities"]:
-                logging.debug("Mention type : media")
+                logging.info("Mention type : media")
                 tweet_with_medias = tweet
 
             # The mention is in a reply of a tweet
@@ -218,11 +218,11 @@ class BotTwitter:
 
                 # The mention is caused by someone replying to the bot
                 if tweet["in_reply_to_user_id_str"] == self.__api.me().id_str:
-                    logging.debug("Mention type : bot reply")
+                    logging.info("Mention type : bot reply")
 
                 # Everything seems fine
                 else:
-                    logging.debug("Mention type : reply")
+                    logging.info("Mention type : reply")
                     replying_to = self.__api.statuses_lookup(
                         [tweet["in_reply_to_status_id_str"]]
                     )[0]._json
@@ -235,11 +235,11 @@ class BotTwitter:
                         #         status="Could not get any media from the tweet you're replying to :(",
                         #         in_reply_to_status_id=tweet["id_str"],
                         #     )
-                        logging.debug("No media found.")
+                        logging.info("No media found.")
 
             # The mention comes from something else (QRT...)
             else:
-                logging.debug("Mention type not supported !")
+                logging.info("Mention type not supported !")
 
             # If good conditions were reunited
             if tweet_with_medias:

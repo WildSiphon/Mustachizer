@@ -10,6 +10,7 @@ numpy = "*"
 tweepy = "*"
 matplotlib = "*"
 "discord.py" = "*"
+argcomplete = "*"
 
 [dev-packages]
 

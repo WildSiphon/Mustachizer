@@ -59,6 +59,10 @@ optional arguments:
 supported media format: BAY, BW, CR2, CRW, DNG, EMF, EMZ, G3F, G3N, GIF, HDP, JFIF, JP2, JPC, JPE, JPEG, JPG, MRW, NEF, NRW, ORF, PCC, PDD, PEF, PNG, PXM, RAF, RAW, RLE, SCR, SRF, TARGA, WMF, X3F, XCF
 ```
 
+**Mustaches available**
+
+![collection](assets/collection.png)
+
 **Demo**
 
 Mustachization works fine with image or gif…![demo](assets/demo.gif)
@@ -111,7 +115,9 @@ We can now use the rotation and translation of the face to determine the perspec
 
 We can see the result here :
 
-![Perspective process](assets/mustache_perspective.jpg)
+<img src="assets/mustache_perspective.jpg" alt="Perspective process" style="zoom: 67%;" />
+
+<img src="assets/mustachized_final_debug.jpg" alt="mustachized_final_debug" style="zoom:50%;" />
 
 **Et voilà !**
 
@@ -129,9 +135,10 @@ You can now enjoy a pretty mustache !
 
 + ~~Creating `mustachizer.py` to mustachize locally~~
 + Improve output of `mustachizer`
-+ Finish the README
-+ Comment all the code
-+ Continue testing the mustachizer to be sure that it never crash 
++ ~~Finish the README~~
++ ~~Comment all the code~~
++ ~~Implement gif support~~
++ Implement video support
 + Adding more sentences when bot is posting result of mustachisation
 + MORE MUSTACHES (maybe not… but maybe more)
 

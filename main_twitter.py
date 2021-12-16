@@ -6,7 +6,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 def main():
-    twitter = BotTwitter(debug=True)
+    twitter = BotTwitter(debug=False)
     twitter.run()
 
 

@@ -34,4 +34,11 @@ class Face:
         return self._translation
 
     def __repr__(self):
-        return f"Face({self.x}, {self.y}, {self.width}, {self.height}, {self.rotation}, {self.translation})"
+        return (
+            f"Face({self.x}, "
+            f"{self.y}, "
+            f"{self.width}, "
+            f"{self.height}, "
+            f"{self.rotation}, "
+            f"{self.translation})"
+        )

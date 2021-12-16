@@ -41,7 +41,7 @@ class Mustachizer:
             image = Image.open(image_buffer, formats=self.__supported_formats)
         except Exception as e:
             raise ImageIncorrectError from e
-            
+
         format_ = image.format
         logging.debug("Format : %s", format_)
         nb_frames = 1 if not hasattr(image, "n_frames") else image.n_frames

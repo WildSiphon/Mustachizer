@@ -10,7 +10,7 @@ class Mustache:
         self._image = Image.open(image_path).convert("RGBA")
         mustache_width, mustache_height = self.image.size
         mustache_aspect_ratio = mustache_width / mustache_height
-        self._width = self.FACE_WIDTH*width
+        self._width = self.FACE_WIDTH * width
         self._height = self.width / mustache_aspect_ratio
         self._anchor = anchor
 

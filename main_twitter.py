@@ -1,13 +1,14 @@
 import sys
 import logging
-from time import sleep
 from modules.twitter.twitter_bot import BotTwitter
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
+
 def main():
     twitter = BotTwitter(debug=True)
     twitter.run()
+
 
 if __name__ == "__main__":
     main()

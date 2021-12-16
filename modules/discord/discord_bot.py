@@ -47,9 +47,7 @@ class DiscordBot(discord.Client):
                         reference=message,
                     )
                 else:
-                    await message.channel.send(
-                            "No image or no face found."
-                            )
+                    await message.channel.send("No image or no face found.")
 
     async def mustachize_attachments(self, message: discord.Message):
         mustachized_images = []

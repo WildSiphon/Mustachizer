@@ -4,15 +4,16 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+argcomplete = "*"
+"discord.py" = "*"
+moviepy = "*"
+numpy = "*"
 opencv-contrib-python = "*"
 pillow = "*"
-numpy = "*"
+python-dateutil = "*"
 tweepy = "*"
-matplotlib = "*"
-"discord.py" = "*"
-argcomplete = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.9"
+python_version = "3.8"

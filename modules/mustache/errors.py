@@ -1,4 +1,3 @@
-
 class MustachedError(Exception):
     pass
 

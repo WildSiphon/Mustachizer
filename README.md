@@ -14,8 +14,10 @@ If you want to use our work locally, just follow instructions below :
 ```bash
 git clone https://github.com/WildSiphon/Mustachizer.git
 cd Mustachizer
-pip install -r requirements.txt
+pip install -r requirements/mustachizer.txt
 ```
+
+*Change the file name based on your usage. Choose between `mustachizer.txt`,`twitter_bot.txt` or `discord_bot.txt`*
 
 ### Using `Pipenv`
 

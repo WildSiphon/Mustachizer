@@ -1,15 +1,15 @@
-import logging
 import cv2
+import logging
 import math
 import numpy
 
 from PIL import Image
-from modules.mustache.face import Face
-from modules.mustache.debug_drawer import DebugDrawer
 from modules.mustache.camera import Camera
+from modules.mustache.debug_drawer import DebugDrawer
+from modules.mustache.face import Face
 
-#PATH="/home/pi/Bots/Stachebot/"
-PATH="./"
+# PATH="/home/pi/Bots/Stachebot/"
+PATH = "./"
 
 faceCascade = cv2.CascadeClassifier(f"{PATH}models/haarcascade/frontalface_default.xml")
 
@@ -46,7 +46,7 @@ class FaceFinder:
                 camera.matrix,
                 camera.distortion,
             )
-            rotation_vector_degree = rotation_vector*180/math.pi
+            rotation_vector_degree = rotation_vector * 180 / math.pi
             logging.debug("Rotation: %s", rotation_vector_degree)
             logging.debug("Translation: %s", translation_vector)
             projections.append((rotation_vector, translation_vector))
@@ -54,7 +54,9 @@ class FaceFinder:
             if self.debug:
                 drawer = DebugDrawer.instance().drawer
                 for j, mark in enumerate(face_marks[i]):
-                    drawer.text(mark, f"{j}", "blue" if j in self.FACE_2D_INDEXES else "lime")
+                    drawer.text(
+                        mark, f"{j}", "blue" if j in self.FACE_2D_INDEXES else "lime"
+                    )
 
         return projections
 
@@ -68,4 +70,6 @@ class FaceFinder:
             return []
         projections = self._compute_face_projections(cv2_gray_image, camera, faces)
 
-        return [Face(*face, *projection) for face, projection in zip(faces, projections)]
+        return [
+            Face(*face, *projection) for face, projection in zip(faces, projections)
+        ]

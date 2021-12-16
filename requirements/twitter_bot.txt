@@ -1,0 +1,4 @@
+-r base.txt # include base requirements
+moviepy>=1.0.3
+python-dateutil>=2.8.2
+tweepy>=4.4.0

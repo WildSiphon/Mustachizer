@@ -1,28 +1,23 @@
-import logging
 import cv2
-import math
 import numpy
 
 from PIL import Image
-from PIL import ImageDraw
 
-from modules.mustache.face import Face
+from modules.mustache.camera import Camera
 from modules.mustache.debug_drawer import DebugDrawer
+from modules.mustache.face import Face
 from modules.mustache.mustache import Mustache
 from modules.mustache.mustache_type import MustacheType
-from modules.mustache.camera import Camera
 
 import random
 
-class MustachePlacer:
 
+class MustachePlacer:
     def __init__(self, debug=False):
         self.debug = debug
         self._mustaches = {}
         for mustache_type in list(MustacheType):
-            self._mustaches[mustache_type] = Mustache(
-                **mustache_type.value
-            )
+            self._mustaches[mustache_type] = Mustache(**mustache_type.value)
 
     def _compute_mustache_box(self, mustache: Mustache):
         """Computes the theorical boudning box of the mustache."""
@@ -47,14 +42,18 @@ class MustachePlacer:
             )
         )
 
-    def choose_mustache(self,mustache_name=None):
+    def choose_mustache(self, mustache_name=None):
         if mustache_name:
-            mustache_type = [m for m in list(MustacheType) if m.name == mustache_name][0]
+            mustache_type = [m for m in list(MustacheType) if m.name == mustache_name][
+                0
+            ]
         else:
             mustache_type = random.choice(list(MustacheType))
         return mustache_type
 
-    def place_mustache(self,face_image: Image,camera: Camera,face: Face, mustache_type=None):
+    def place_mustache(
+        self, face_image: Image, camera: Camera, face: Face, mustache_type=None
+    ):
         """Place a mustache on a face."""
         if self.debug:
             drawer = DebugDrawer.instance().drawer
@@ -81,7 +80,9 @@ class MustachePlacer:
                 "red",
             )
 
-        mustache_type = self.choose_mustache() if mustache_type == None else mustache_type
+        if not mustache_type:
+            mustache_type = self.choose_mustache()
+
         mustache = self._mustaches[mustache_type]
         mustache_image = mustache.image
 

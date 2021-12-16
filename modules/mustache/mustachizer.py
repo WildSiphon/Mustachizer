@@ -1,13 +1,12 @@
-import logging
 import io
+import logging
 
-from modules.mustache.mustache_placer import MustachePlacer
-from modules.mustache.face_finder import FaceFinder
 from modules.mustache.camera import Camera
 from modules.mustache.debug_drawer import DebugDrawer
-from modules.mustache.errors import NoFaceFoundError
 from modules.mustache.errors import ImageIncorrectError
-from modules.mustache.mustache_type import MustacheType
+from modules.mustache.errors import NoFaceFoundError
+from modules.mustache.face_finder import FaceFinder
+from modules.mustache.mustache_placer import MustachePlacer
 
 from PIL import Image
 from PIL import ImageSequence
@@ -42,14 +41,18 @@ class Mustachizer:
             image = Image.open(image_buffer, formats=self.__supported_formats)
         except Exception as e:
             raise ImageIncorrectError from e
+            
         format_ = image.format
         logging.debug("Format : %s", format_)
         nb_frames = 1 if not hasattr(image, "n_frames") else image.n_frames
         logging.debug("Frames : %s", nb_frames)
         mustachized_frames = []
         recognized_faces = False
-        # mustache_type = None if nb_frames <= 1 else self.__mutache_placer.choose_mustache()
-        mustache_type = None if nb_frames <= 1 and not mustache_name else self.__mustache_placer.choose_mustache(mustache_name)
+        mustache_type = (
+            None
+            if nb_frames <= 1 and not mustache_name
+            else self.__mustache_placer.choose_mustache(mustache_name)
+        )
 
         for image_frame in ImageSequence.Iterator(image):
             image_frame = image_frame.convert("RGBA")
@@ -60,7 +63,9 @@ class Mustachizer:
             if faces:
                 recognized_faces = True
                 for face in faces:
-                    self.__mustache_placer.place_mustache(image_frame, camera, face, mustache_type)
+                    self.__mustache_placer.place_mustache(
+                        image_frame, camera, face, mustache_type
+                    )
             mustachized_frames.append(image_frame)
 
         if recognized_faces:

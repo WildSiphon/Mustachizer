@@ -1,8 +1,9 @@
-import random
 import json
+import random
 
-#SERVER_PATH="/home/pi/Bots/Stachebot/"
-SERVER_PATH="./"
+# SERVER_PATH="/home/pi/Bots/Stachebot/"
+SERVER_PATH = "./"
+
 
 class SentenceProvider:
     """Provide sentences for responses."""

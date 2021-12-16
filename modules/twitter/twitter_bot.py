@@ -1,17 +1,17 @@
-import os
 import json
-import tweepy
-import random
-import requests
 import logging
+import tweepy
 
-from io import BytesIO
-from datetime import *
+from datetime import datetime
+from datetime import timezone
+
 from dateutil import parser
-from moviepy.editor import *
+from io import BytesIO
+from moviepy.editor import VideoFileClip
 from urllib.request import urlopen
 
-from modules.mustache.errors import ImageIncorrectError, NoFaceFoundError
+from modules.mustache.errors import ImageIncorrectError
+from modules.mustache.errors import NoFaceFoundError
 from modules.mustache.mustachizer import Mustachizer
 from modules.mustache.sentence_provider import SentenceProvider
 
@@ -193,7 +193,10 @@ class BotTwitter:
         logging.info("Replied.")
 
     def _reply_to_last_mentions(self):
-        """Responds to all mentions that have appeared during the last period of time."""
+        """
+        Responds to all mentions that have appeared
+        during the last period of time.
+        """
         last_mentions = self._get_last_mentions()
 
         if len(last_mentions) != 0:
@@ -231,10 +234,6 @@ class BotTwitter:
                     if "media" in replying_to["entities"]:
                         tweet_with_medias = replying_to
                     else:
-                        #     self._reply_with_twitter_api(
-                        #         status="Could not get any media from the tweet you're replying to :(",
-                        #         in_reply_to_status_id=tweet["id_str"],
-                        #     )
                         logging.info("No media found.")
 
             # The mention comes from something else (QRT...)
@@ -260,8 +259,9 @@ class BotTwitter:
             self.__lastdate = parser.parse(last_mentions[0]["created_at"])
 
     def run(self):
-        while True:
-            try:
-                self._reply_to_last_mentions()
-            except tweepy.TweepError as e:
-                logging.error(e)
+        # while True:
+        #     try:
+        self._reply_to_last_mentions()
+
+    # except tweepy.errors.TweepyException as e:
+    #     logging.error(e)

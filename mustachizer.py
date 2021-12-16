@@ -1,14 +1,18 @@
+import argcomplete
+import argparse
 import io
 import json
-import os, sys
-import argparse
-import argcomplete
+import logging
+import os
+import sys
 
-from modules.mustache.mustachizer import Mustachizer
 from modules.mustache.mustache_type import MustacheType
+from modules.mustache.mustachizer import Mustachizer
 
 MUSTACHES_LIST = [m.name for m in MustacheType]
 MEDIA_FORMATS = json.load(open("./img/formats.json", "r"))
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 def print_banner():
@@ -38,17 +42,22 @@ def main(files, mustache_name, output_location, showing):
 
     for file in files:
         print(f"\nACTIVE MEDIA: '{file}'")
+
         if not os.path.isfile(file):
             print("Not a file.\nMustachization is ignored.")
             continue
+
         if file.split(".")[-1].upper() not in MEDIA_FORMATS["supported"]:
             print(
-                f"Media not supported. Only supporting {', '.join(MEDIA_FORMATS['supported'])}."
+                "Media not supported. Only supporting "
+                f"{', '.join(MEDIA_FORMATS['supported'])}."
             )
             print("Mustachization is ignored.")
             continue
+
         print(
-            f"SELECTED MUSTACHE: {mustache_name if mustache_name else '*choosen ramdomly*'}"
+            "SELECTED MUSTACHE: "
+            f"{mustache_name if mustache_name else '*choosen ramdomly*'}"
         )
 
         buffer = None
@@ -76,6 +85,7 @@ def main(files, mustache_name, output_location, showing):
         if showing:
             show_media(filepath=filepath)
 
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
@@ -91,15 +101,17 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-t",
+        "--type",
         dest="mustache_name",
         type=str,
         nargs="?",
         default="random",
         help='choose mustache type (default is "random")',
-        choices=MUSTACHES_LIST
+        choices=MUSTACHES_LIST,
     )
     parser.add_argument(
         "-o",
+        "--output",
         dest="output_location",
         type=str,
         nargs="?",
@@ -134,7 +146,8 @@ if __name__ == "__main__":
         if args.mustache_name.upper() not in MUSTACHES_LIST:
             if args.mustache_name != "random":
                 print(
-                    f'"{args.mustache_name}" is not a valid mustache. A random \'stache will be assigned'
+                    f'"{args.mustache_name}" is not a valid mustache. '
+                    "A random 'stache will be assigned"
                 )
                 print_mustache_list()
             mustache_name = None
@@ -144,13 +157,12 @@ if __name__ == "__main__":
             output_location = args.output_location
         else:
             print(
-                f'Can\'t find directory "{args.output_location}". Mustachized media(s) will be saved in "./output/"'
+                f'Can\'t find directory "{args.output_location}". '
+                'Mustachized media(s) will be saved in "./output/"'
             )
             output_location = "./output/"
     else:
-        exit(
-            "Please indicate at least one media to mustachize\nmustachizer.py [-h] for more informations"
-        )
+        parser.error("Please indicate at least one media to mustachize")
 
     main(
         files=files,

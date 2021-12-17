@@ -1,9 +1,8 @@
-import logging
-import sys
-
+from mustachizer.logging.configuration import ConfigureLogger
 from mustachizer.twitter.twitter_bot import BotTwitter
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+# Create logger at the correct level
+ConfigureLogger(log_file="twitter_bot", console_level="INFO")
 
 
 def main():

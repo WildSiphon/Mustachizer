@@ -7,6 +7,8 @@ from mustachizer.errors import NoFaceFoundError
 from mustachizer.mustache_applicator import MustacheApplicator
 from mustachizer.utilities.sentence_provider import SentenceProvider
 
+logger = logging.getLogger("stachlog")
+
 
 class DiscordBot(discord.Client):
     """
@@ -24,7 +26,7 @@ class DiscordBot(discord.Client):
         self.__sentence_provider = SentenceProvider()
 
     async def on_ready(self):
-        logging.info("Stachbot ready to mustache !")
+        logger.info("Stachbot ready to mustache !")
 
     async def on_message(self, message: discord.Message):
         # Avoid recursion
@@ -32,7 +34,7 @@ class DiscordBot(discord.Client):
 
             # A user tagged the bot
             if self.user in message.mentions:
-                logging.info(message.reference.resolved.embeds[0].url)
+                logger.info(message.reference.resolved.embeds[0].url)
 
                 mustachized_images = []
 

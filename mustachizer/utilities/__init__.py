@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from musatchizer.utilties.errors import JSONFilepathError
+from mustachizer.utilities.errors import JSONFilepathError
 
 
 def LoadJSON(filepath: Path) -> dict:

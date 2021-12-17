@@ -8,6 +8,8 @@ from mustachizer import PATH
 from mustachizer.twitter.errors import TweepyWrapperError
 from mustachizer.utilities import JSONFilepathError, LoadJSON
 
+logger = logging.getLogger("stachlog")
+
 
 class TweepyWrapper:
     """
@@ -45,7 +47,7 @@ class TweepyWrapper:
         )
         self.api = API(auth, wait_on_rate_limit=True)
 
-        logging.info(f"Connected to '{self.name}' @{self.screen_name}")
+        logger.info(f"Connected to '{self.name}' @{self.screen_name}")
 
     # TODO raise Exeption if fail
     def get_new_mentions(self, posted_after_date: datetime) -> list:
@@ -82,7 +84,7 @@ class TweepyWrapper:
                 in_reply_to_status_id=status_id,
                 auto_populate_reply_metadata=True,
             )
-            logging.info("Replied.")
+            logger.info("Replied.")
             return
 
         # No medias
@@ -94,7 +96,7 @@ class TweepyWrapper:
             in_reply_to_status_id=status_id,
             auto_populate_reply_metadata=True,
         )
-        logging.info("Replied.")
+        logger.info("Replied.")
 
     @property
     def info(self):

@@ -12,6 +12,8 @@ from mustachizer.mustache_applicator import MustacheApplicator
 from mustachizer.twitter.tweepy_wrapper import TweepyWrapper
 from mustachizer.utilities.sentence_provider import SentenceProvider
 
+logger = logging.getLogger("stachlog")
+
 
 class BotTwitter:
     """
@@ -45,7 +47,7 @@ class BotTwitter:
                     posted_after_date=self.last_datetime
                 )
                 sleep(3)
-            logging.info(
+            logger.info(
                 f"{datetime.now(timezone.utc)} UTC : {len(mentions)} new mention"
             )
 
@@ -62,34 +64,34 @@ class BotTwitter:
 
         # The mention is caused by a RT
         if "retweeted_status" in tweet:
-            logging.info("Mention type : retweet")
+            logger.info("Mention type : retweet")
 
         # The mention is in a tweet with media
         elif "media" in tweet["entities"]:
             tweet_with_medias = tweet
-            logging.info("Mention type : media")
+            logger.info("Mention type : media")
 
         # The mention is in a reply of a tweet
         elif tweet["in_reply_to_status_id_str"]:
 
             # The mention is caused by someone replying to the bot
             if tweet["in_reply_to_user_id_str"] == self.id_str:
-                logging.info("Mention type : bot reply")
+                logger.info("Mention type : bot reply")
 
             # Everything seems fine
             else:
-                logging.info("Mention type : reply")
+                logger.info("Mention type : reply")
                 replying_to = self.get_tweet_object(tweet["in_reply_to_status_id_str"])
 
                 # The tweet to which the mention responds contains media
                 if "media" in replying_to["entities"]:
                     tweet_with_medias = replying_to
                 else:
-                    logging.info("No media found.")
+                    logger.info("No media found.")
 
         # The mention comes from something else (QRT...)
         else:
-            logging.info("Mention type not supported !")
+            logger.info("Mention type not supported !")
 
         # If good conditions were reunited
         if tweet_with_medias:
@@ -139,7 +141,7 @@ class BotTwitter:
             )
             return open("/tmp/output.gif", "rb").read()
         except OSError as e:
-            logging.error(e)
+            logger.error(e)
             return BytesIO()
 
     def _mustachize_medias(self, medias: dict) -> list:
@@ -150,7 +152,7 @@ class BotTwitter:
 
         :return: mustachized medias
         """
-        logging.info(f"{len(medias)} medias :")
+        logger.info(f"{len(medias)} medias :")
 
         mustachized_medias = []
         for media in medias:
@@ -168,11 +170,11 @@ class BotTwitter:
             try:
                 output = self.mustachizer.mustachize(BytesIO(image_buffer))
                 mustachized_medias.append(output)
-                logging.info(f"\t{url} -> Mustachized")
+                logger.info(f"\t{url} -> Mustachized")
             except NoFaceFoundError:
-                logging.info(f"\t{url} -> No Faces found")
+                logger.info(f"\t{url} -> No Faces found")
             except ImageIncorrectError as e:
-                logging.error(e)
+                logger.error(e)
 
         return mustachized_medias
 

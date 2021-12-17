@@ -8,6 +8,8 @@ import sys
 import argcomplete
 
 from mustachizer import PATH
+from mustachizer.logging import LOGGING_LEVEL_LIST
+from mustachizer.logging.configuration import ConfigureLogger
 from mustachizer.mustache_applicator import MustacheApplicator
 from mustachizer.mustache_type import MustacheType
 
@@ -15,8 +17,6 @@ MUSTACHES_LIST = [m.name for m in MustacheType]
 MEDIA_FORMATS = json.load(
     open(PATH / "mustachizer" / "utilities" / "formats.json", "r")
 )
-
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 def print_banner():
@@ -45,21 +45,20 @@ def main(files, mustache_name, output_location, showing):
     mustachizer = MustacheApplicator(debug=False)
 
     for file in files:
-        print(f"\nACTIVE MEDIA: '{file}'")
+        logger.info(f"\nACTIVE MEDIA: '{file}'")
 
         if not os.path.isfile(file):
-            print("Not a file.\nMustachization is ignored.")
+            logger.error("Not a file.\nMustachization is ignored.")
             continue
 
         if file.split(".")[-1].upper() not in MEDIA_FORMATS["supported"]:
-            print(
+            logger.error(
                 "Media not supported. Only supporting "
-                f"{', '.join(MEDIA_FORMATS['supported'])}."
+                f"{', '.join(MEDIA_FORMATS['supported'])}.\nMustachization is ignored."
             )
-            print("Mustachization is ignored.")
             continue
 
-        print(
+        logger.info(
             "SELECTED MUSTACHE: "
             f"{mustache_name if mustache_name else '*choosen ramdomly*'}"
         )
@@ -84,7 +83,7 @@ def main(files, mustache_name, output_location, showing):
         with open(filepath, "wb") as save_file:
             save_file.write(image.read())
 
-        print("Mustachization successfully done.")
+        logger.info("Mustachization successfully done.")
 
         if showing:
             show_media(filepath=filepath)
@@ -138,6 +137,13 @@ if __name__ == "__main__":
         default=False,
         help="show the mustachized media",
     )
+    parser.add_argument(
+        "--log",
+        type=str.upper,
+        help="choose level to display execution info (default is 'INFO')",
+        choices=LOGGING_LEVEL_LIST,
+        default="INFO",
+    )
     argcomplete.autocomplete(parser)
     args = parser.parse_args()
 
@@ -145,28 +151,32 @@ if __name__ == "__main__":
 
     if args.listing:
         print_mustache_list()
-    if args.paths:
-        files = args.paths
-        if args.mustache_name.upper() not in MUSTACHES_LIST:
-            if args.mustache_name != "random":
-                print(
-                    f'"{args.mustache_name}" is not a valid mustache. '
-                    "A random 'stache will be assigned"
-                )
-                print_mustache_list()
-            mustache_name = None
-        else:
-            mustache_name = args.mustache_name.upper()
-        if os.path.isdir(args.output_location) or args.output_location == "./output/":
-            output_location = args.output_location
-        else:
-            print(
-                f'Can\'t find directory "{args.output_location}". '
-                'Mustachized media(s) will be saved in "./output/"'
-            )
-            output_location = "./output/"
-    else:
+    if not args.paths:
         parser.error("Please indicate at least one media to mustachize")
+
+    # Create logger at the correct level
+    ConfigureLogger(console_level=args.log)
+    logger = logging.getLogger("stachlog")
+
+    files = args.paths
+    if args.mustache_name.upper() not in MUSTACHES_LIST:
+        if args.mustache_name != "random":
+            logger.warning(
+                f'"{args.mustache_name}" is not a valid mustache. '
+                "A random 'stache will be assigned"
+            )
+            print_mustache_list()
+        mustache_name = None
+    else:
+        mustache_name = args.mustache_name.upper()
+    if os.path.isdir(args.output_location) or args.output_location == "./output/":
+        output_location = args.output_location
+    else:
+        logger.warning(
+            f'Can\'t find directory "{args.output_location}". '
+            'Mustachized media(s) will be saved in "./output/"'
+        )
+        output_location = "./output/"
 
     main(
         files=files,

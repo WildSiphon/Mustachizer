@@ -4,7 +4,7 @@ import logging
 import discord
 
 from mustachizer.errors import NoFaceFoundError
-from mustachizer.mustachizer import Mustachizer
+from mustachizer.mustache_applicator import MustacheApplicator
 from mustachizer.utilities.sentence_provider import SentenceProvider
 
 
@@ -20,7 +20,7 @@ class DiscordBot(discord.Client):
         :param debug: Whether it should print stuffs, defaults to False
         """
         super().__init__()
-        self.__mustachizer = Mustachizer(debug)
+        self.__mustachizer = MustacheApplicator(debug)
         self.__sentence_provider = SentenceProvider()
 
     async def on_ready(self):

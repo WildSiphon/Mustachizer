@@ -8,7 +8,7 @@ from dateutil import parser
 from moviepy.editor import VideoFileClip
 
 from mustachizer.errors import ImageIncorrectError, NoFaceFoundError
-from mustachizer.mustachizer import Mustachizer
+from mustachizer.mustache_applicator import MustacheApplicator
 from mustachizer.twitter.tweepy_wrapper import TweepyWrapper
 from mustachizer.utilities.sentence_provider import SentenceProvider
 
@@ -27,7 +27,7 @@ class BotTwitter:
 
         # Set up
         self.last_datetime = datetime.now(timezone.utc)
-        self.mustachizer = Mustachizer(debug=debug)
+        self.mustachizer = MustacheApplicator(debug=debug)
         self.sentence_provider = SentenceProvider()
 
         # Tweepy configuration

@@ -10,9 +10,9 @@ from mustachizer.tools.debug_drawer import DebugDrawer
 from mustachizer.tools.face_finder import FaceFinder
 
 
-class Mustachizer:
+class MustacheApplicator:
     """
-    Apply a mustaches on images.
+    Apply mustaches on images.
     """
 
     def __init__(self, debug: bool = False):

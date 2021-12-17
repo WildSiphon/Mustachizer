@@ -8,8 +8,8 @@ import sys
 import argcomplete
 
 from mustachizer import PATH
+from mustachizer.mustache_applicator import MustacheApplicator
 from mustachizer.mustache_type import MustacheType
-from mustachizer.mustachizer import Mustachizer
 
 MUSTACHES_LIST = [m.name for m in MustacheType]
 MEDIA_FORMATS = json.load(
@@ -42,7 +42,7 @@ def show_media(filepath):
 
 
 def main(files, mustache_name, output_location, showing):
-    mustachizer = Mustachizer(debug=False)
+    mustachizer = MustacheApplicator(debug=False)
 
     for file in files:
         print(f"\nACTIVE MEDIA: '{file}'")

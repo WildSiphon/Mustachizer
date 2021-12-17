@@ -1,8 +1,8 @@
 import random
 
 from mustachizer import PATH
-from mustachizer.utilities import JSONFilepathError, LoadJSON
-from mustachizer.utilities.errors import SentenceProviderError
+from mustachizer.utilities import LoadJSON
+from mustachizer.utilities.errors import JSONFilepathError, SentenceProviderError
 
 
 class SentenceProvider:

@@ -5,18 +5,20 @@ import cv2
 import numpy
 from PIL import Image
 
-from modules.mustache.camera import Camera
-from modules.mustache.debug_drawer import DebugDrawer
-from modules.mustache.face import Face
+from mustachizer import PATH
+from mustachizer.tools.camera import Camera
+from mustachizer.tools.debug_drawer import DebugDrawer
+from mustachizer.tools.face import Face
 
-# PATH="/home/pi/Bots/Stachebot/"
-PATH = "./"
-
-faceCascade = cv2.CascadeClassifier(f"{PATH}models/haarcascade/frontalface_default.xml")
+faceCascade = cv2.CascadeClassifier(
+    f"{PATH}/models/haarcascade/frontalface_default.xml"
+)
 
 
 class FaceFinder:
-    """Finds the bounding boxes of faces."""
+    """
+    Finds the bounding boxes of faces.
+    """
 
     FACE_3D_POINTS = numpy.array(
         [
@@ -33,9 +35,9 @@ class FaceFinder:
     def __init__(self, debug=False):
         self.debug = debug
         self._face_marker = cv2.face.createFacemarkLBF()
-        self._face_marker.loadModel(f"{PATH}models/face_marker_models/lbf.model")
+        self._face_marker.loadModel(f"{PATH}/models/face_marker_models/lbf.model")
 
-    def _compute_face_projections(self, cv2_image, camera: Camera, faces):
+    def _compute_face_projections(self, cv2_image, camera: Camera, faces) -> list:
         _, face_marks = self._face_marker.fit(cv2_image, faces)
         face_marks = [marks.reshape(68, 2) for marks in face_marks]
 
@@ -61,7 +63,7 @@ class FaceFinder:
 
         return projections
 
-    def find_faces(self, image: Image, camera: Camera):
+    def find_faces(self, image: Image, camera: Camera) -> list:
         cv2_image = cv2.cvtColor(numpy.array(image), cv2.COLOR_RGB2BGR)
         cv2_gray_image = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2GRAY)
         faces = faceCascade.detectMultiScale(

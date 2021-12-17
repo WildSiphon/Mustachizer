@@ -63,11 +63,11 @@ supported media format: BAY, BW, CR2, CRW, DNG, EMF, EMZ, G3F, G3N, GIF, HDP, JF
 
 **Mustaches available**
 
-![collection](assets/collection.png)
+![collection](assets/documentation/collection.png)
 
 **Demo**
 
-Mustachization works fine with image or gif…![demo](assets/demo.gif)
+Mustachization works fine with image or gif…![demo](assets/documentation/demo.gif)
 
 ### Twitter use
 
@@ -98,7 +98,7 @@ The goal is to eliminate the big chunks of the image which don't contain any fac
 The selected part of the image is then passed through a [Local Binary Feature Facemarker](https://docs.opencv.org/3.4.15/javadoc/org/opencv/face/FacemarkLBF.html) which is essentially an AI specialised in putting reference points on a face.
 
 You can see the result here :
-![Before/After Detection](assets/before_after.jpg)
+![Before/After Detection](assets/documentation/before_after.jpg)
 
 The facemarker outputs a lot of points which we ignore.
 
@@ -117,21 +117,21 @@ We can now use the rotation and translation of the face to determine the perspec
 
 We can see the result here :
 
-<img src="assets/mustache_perspective.jpg" alt="Perspective process" style="zoom: 67%;" />
+<img src="assets/documentation/mustache_perspective.jpg" alt="Perspective process" style="zoom: 67%;" />
 
-<img src="assets/mustachized_final_debug.jpg" alt="mustachized_final_debug" style="zoom:50%;" />
+<img src="assets/documentation/mustachized_final_debug.jpg" alt="mustachized_final_debug" style="zoom:50%;" />
 
 **Et voilà !**
 
 You can now enjoy a pretty mustache !
 
-![Final result](assets/mustachized_final.jpg)
+![Final result](assets/documentation/mustachized_final.jpg)
 
 ### Design
 
 #### Class diagram
 
-![Class Diagram](assets/puml/out/class_diagram/class_diagram.svg)
+![Class Diagram](assets/documentation/puml/out/class_diagram/class_diagram.svg)
 
 ## <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f4dd.png" alt="memo" style="zoom:33%;" /> Stuff to add
 

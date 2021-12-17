@@ -7,10 +7,10 @@ from urllib.request import urlopen
 from dateutil import parser
 from moviepy.editor import VideoFileClip
 
-from modules.mustache.errors import ImageIncorrectError, NoFaceFoundError
-from modules.mustache.mustachizer import Mustachizer
-from modules.mustache.sentence_provider import SentenceProvider
-from modules.twitter.tweepy_wrapper import TweepyWrapper
+from mustachizer.errors import ImageIncorrectError, NoFaceFoundError
+from mustachizer.mustachizer import Mustachizer
+from mustachizer.twitter.tweepy_wrapper import TweepyWrapper
+from mustachizer.utilities.sentence_provider import SentenceProvider
 
 
 class BotTwitter:

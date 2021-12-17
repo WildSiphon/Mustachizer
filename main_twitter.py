@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from modules.twitter.twitter_bot import BotTwitter
+from mustachizer.twitter.twitter_bot import BotTwitter
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 

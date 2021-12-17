@@ -2,7 +2,9 @@ from PIL import ImageDraw
 
 
 class DebugDrawer:
-    """A class to draw debug shapes on an image."""
+    """
+    A class to draw debug shapes on an image.
+    """
 
     __instance = None
 

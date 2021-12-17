@@ -3,42 +3,41 @@ import logging
 
 from PIL import Image, ImageSequence
 
-from modules.mustache.camera import Camera
-from modules.mustache.debug_drawer import DebugDrawer
-from modules.mustache.errors import ImageIncorrectError, NoFaceFoundError
-from modules.mustache.face_finder import FaceFinder
-from modules.mustache.mustache_placer import MustachePlacer
+from mustachizer.errors import ImageIncorrectError, NoFaceFoundError
+from mustachizer.mustache_placer import MustachePlacer
+from mustachizer.tools.camera import Camera
+from mustachizer.tools.debug_drawer import DebugDrawer
+from mustachizer.tools.face_finder import FaceFinder
 
 
 class Mustachizer:
-    """Apply a mustaches on images.
-
-    :param debug: Whether it should draw debug lines, defaults to False
-    :type debug: bool, optional
+    """
+    Apply a mustaches on images.
     """
 
-    def __init__(self, debug=False):
+    def __init__(self, debug: bool = False):
+        """
+        :param debug: Whether it should draw debug lines, defaults to False
+        """
         self.__debug = debug
         self.__supported_formats = ["JPEG", "PNG", "GIF"]
         self.__mustache_placer = MustachePlacer(debug)
         self.__face_finder = FaceFinder(debug)
 
-    def mustachize(self, image_buffer: io.BytesIO, mustache_name=None):
+    def mustachize(self, image_buffer: io.BytesIO, mustache_name=None) -> io.BytesIO:
         """Place mustaches on an image.
 
         :param image_buffer: The buffer containing the image
-        :type image_buffer: io.BytesIO
 
         :raises NoFaceFoundError: No face has been found on the image
         :raises ImageIncorrectError: The provided image is not in the correct format
 
         :return: The modified image
-        :rtype: io.BytesIO
         """
         try:
             image = Image.open(image_buffer, formats=self.__supported_formats)
-        except Exception as e:
-            raise ImageIncorrectError from e
+        except Exception as exception:
+            raise ImageIncorrectError from exception
 
         format_ = image.format
         logging.debug("Format : %s", format_)

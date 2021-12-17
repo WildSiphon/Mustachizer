@@ -1,0 +1,2 @@
+class TweepyWrapperError(Exception):
+    pass

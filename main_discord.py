@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from modules.discord.discord_bot import DiscordBot
+from mustachizer.discord.discord_bot import DiscordBot
 
 logging.basicConfig(stream=sys.stdout)
 

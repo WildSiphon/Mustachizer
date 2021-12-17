@@ -7,11 +7,14 @@ import sys
 
 import argcomplete
 
-from modules.mustache.mustache_type import MustacheType
-from modules.mustache.mustachizer import Mustachizer
+from mustachizer import PATH
+from mustachizer.mustache_type import MustacheType
+from mustachizer.mustachizer import Mustachizer
 
 MUSTACHES_LIST = [m.name for m in MustacheType]
-MEDIA_FORMATS = json.load(open("./img/formats.json", "r"))
+MEDIA_FORMATS = json.load(
+    open(PATH / "mustachizer" / "utilities" / "formats.json", "r")
+)
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 

@@ -4,22 +4,24 @@ import cv2
 import numpy
 from PIL import Image
 
-from modules.mustache.camera import Camera
-from modules.mustache.debug_drawer import DebugDrawer
-from modules.mustache.face import Face
-from modules.mustache.mustache import Mustache
-from modules.mustache.mustache_type import MustacheType
+from mustachizer.mustache import Mustache
+from mustachizer.mustache_type import MustacheType
+from mustachizer.tools.camera import Camera
+from mustachizer.tools.debug_drawer import DebugDrawer
+from mustachizer.tools.face import Face
 
 
 class MustachePlacer:
-    def __init__(self, debug=False):
+    def __init__(self, debug: bool = False):
         self.debug = debug
         self._mustaches = {}
         for mustache_type in list(MustacheType):
             self._mustaches[mustache_type] = Mustache(**mustache_type.value)
 
     def _compute_mustache_box(self, mustache: Mustache):
-        """Computes the theorical boudning box of the mustache."""
+        """
+        Computes the theorical boudning box of the mustache.
+        """
         bottom_left_corner = mustache.anchor - numpy.array(
             [mustache.width / 2, mustache.height / 2, 0]
         )

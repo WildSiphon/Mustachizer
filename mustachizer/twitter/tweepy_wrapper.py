@@ -1,30 +1,12 @@
-import json
 import logging
 from datetime import datetime
-from pathlib import Path
 
 from dateutil import parser
 from tweepy import API, OAuthHandler
 
-# PATH = Path("/home/pi/Bots/Stachebot/")
-PATH = Path("./")
-
-
-def open_json(filepath: Path) -> dict:
-    """
-    Load a json file.
-
-    :param filepath: path to a json file
-    """
-    try:
-        with open(filepath) as file:
-            return json.load(file)
-    except json.decoder.JSONDecodeError:
-        error = f"Could not read {filepath}."
-        raise JSONFilepathError(error)
-    except IOError:
-        error = f"{filepath} does not appear to exist."
-        raise JSONFilepathError(error)
+from mustachizer import PATH
+from mustachizer.twitter.errors import TweepyWrapperError
+from mustachizer.utilities import JSONFilepathError, LoadJSON
 
 
 class TweepyWrapper:
@@ -33,12 +15,16 @@ class TweepyWrapper:
     """
 
     def __init__(self):
-        # Get token
-        credentials_filepath = PATH / "modules" / "twitter" / "credentials.json"
+        """
+        Construct the Tweepy wrapper.
+        """
+
+        # Token
+        credentials_filepath = PATH / "mustachizer" / "twitter" / "credentials.json"
         try:
-            self.token = open_json(filepath=credentials_filepath)
+            self.token = LoadJSON(filepath=credentials_filepath)
         except JSONFilepathError as error:
-            raise TweepyWrapperError(error)
+            raise TweepyWrapperError(error) from error
 
         # API
         self.api = None
@@ -74,13 +60,15 @@ class TweepyWrapper:
             if parser.parse(status._json["created_at"]) > posted_after_date
         ]
 
-    def reply_to_status(self, medias: dict = [], msg: str = "", status_id: str = ""):
+    def reply_to_status(
+        self, medias: dict = [], msg: str = "", status_id: str = ""
+    ) -> None:
         """
         Reply to a tweet.
 
         :param medias: list of medias to post
         :param msg: text to post
-        :param in_reply_to_status_id: tweet's id to reply to
+        :param status_id: tweet's id to reply to
         """
 
         if medias:
@@ -123,11 +111,3 @@ class TweepyWrapper:
     @property
     def id_str(self):
         return self.info["id_str"]
-
-
-class JSONFilepathError(Exception):
-    pass
-
-
-class TweepyWrapperError(Exception):
-    pass

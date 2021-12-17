@@ -18,6 +18,6 @@ exclude = '''
 [tool.vulture]
 make_whitelist = true
 min_confidence = 70
-paths = ["mustachizer.py","main_twitter.py","main_discord.py","modules"]
+paths = ["mustachizer.py","main_twitter.py","main_discord.py","mustachizer"]
 sort_by_size = true
 verbose = false

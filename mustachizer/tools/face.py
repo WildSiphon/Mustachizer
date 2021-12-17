@@ -1,5 +1,7 @@
 class Face:
-    """Represents the hitbox of a face."""
+    """
+    Represents the hitbox of a face.
+    """
 
     def __init__(self, x, y, width, height, rotation, translation):
         self._x = x

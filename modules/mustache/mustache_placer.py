@@ -1,6 +1,7 @@
+import random
+
 import cv2
 import numpy
-
 from PIL import Image
 
 from modules.mustache.camera import Camera
@@ -8,8 +9,6 @@ from modules.mustache.debug_drawer import DebugDrawer
 from modules.mustache.face import Face
 from modules.mustache.mustache import Mustache
 from modules.mustache.mustache_type import MustacheType
-
-import random
 
 
 class MustachePlacer:

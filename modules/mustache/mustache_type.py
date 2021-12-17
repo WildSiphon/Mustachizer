@@ -1,6 +1,6 @@
-import numpy
-
 from enum import Enum
+
+import numpy
 
 # PATH="/home/pi/Bots/Stachebot/"
 PATH = "./"

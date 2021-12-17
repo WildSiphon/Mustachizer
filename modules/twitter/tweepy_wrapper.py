@@ -1,11 +1,10 @@
 import json
 import logging
-
 from datetime import datetime
-from dateutil import parser
 from pathlib import Path
-from tweepy import API
-from tweepy import OAuthHandler
+
+from dateutil import parser
+from tweepy import API, OAuthHandler
 
 # PATH = Path("/home/pi/Bots/Stachebot/")
 PATH = Path("./")

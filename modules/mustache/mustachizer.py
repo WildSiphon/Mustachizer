@@ -1,15 +1,13 @@
 import io
 import logging
 
+from PIL import Image, ImageSequence
+
 from modules.mustache.camera import Camera
 from modules.mustache.debug_drawer import DebugDrawer
-from modules.mustache.errors import ImageIncorrectError
-from modules.mustache.errors import NoFaceFoundError
+from modules.mustache.errors import ImageIncorrectError, NoFaceFoundError
 from modules.mustache.face_finder import FaceFinder
 from modules.mustache.mustache_placer import MustachePlacer
-
-from PIL import Image
-from PIL import ImageSequence
 
 
 class Mustachizer:

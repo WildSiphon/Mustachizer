@@ -36,6 +36,37 @@
     "X3F",
     "XCF"
   ],
-  "not_supported": ["BMP","ICB","PBM","PCD","PCT","PCX","PGM","PPM","PSD","RGB","SGI","TGA","TIF","TIFF","VDA","VST","WEBP"],
-  "not_tested": ["ICO","ICNS","DIB","WMZ","EMZ","J2K","J2C","FAX","WIN","RGBA","DCX","BPG"]
+  "not_supported": [
+    "BMP",
+    "ICB",
+    "PBM",
+    "PCD",
+    "PCT",
+    "PCX",
+    "PGM",
+    "PPM",
+    "PSD",
+    "RGB",
+    "SGI",
+    "TGA",
+    "TIF",
+    "TIFF",
+    "VDA",
+    "VST",
+    "WEBP"
+  ],
+  "not_tested": [
+    "ICO",
+    "ICNS",
+    "DIB",
+    "WMZ",
+    "EMZ",
+    "J2K",
+    "J2C",
+    "FAX",
+    "WIN",
+    "RGBA",
+    "DCX",
+    "BPG"
+  ]
 }

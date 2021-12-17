@@ -2,9 +2,9 @@ import io
 
 import discord
 
+from modules.mustache.errors import NoFaceFoundError
 from modules.mustache.mustachizer import Mustachizer
 from modules.mustache.sentence_provider import SentenceProvider
-from modules.mustache.errors import NoFaceFoundError
 
 
 class DiscordBot(discord.Client):

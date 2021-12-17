@@ -2,7 +2,7 @@
 
 ## <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a1.png" alt="bulb" style="zoom:33%;" /> The Idea
 
-The idea behind his project was to propose a solution to **mustachize as many faces as possible**. So we did it! 
+The idea behind his project was to propose a solution to **mustachize as many faces as possible**. So we did it!
 And because it's funny and we like to share, we made it a twitter bot ([@RealStachBot](https://twitter.com/RealStachBot)) and a discord bot.
 
 ## <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f6e0.png" alt="hammer_and_wrench" style="zoom:33%;" /> Installation

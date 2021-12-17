@@ -1,9 +1,10 @@
-import cv2
 import logging
 import math
-import numpy
 
+import cv2
+import numpy
 from PIL import Image
+
 from modules.mustache.camera import Camera
 from modules.mustache.debug_drawer import DebugDrawer
 from modules.mustache.face import Face

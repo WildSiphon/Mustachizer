@@ -1,10 +1,11 @@
-import argcomplete
 import argparse
 import io
 import json
 import logging
 import os
 import sys
+
+import argcomplete
 
 from modules.mustache.mustache_type import MustacheType
 from modules.mustache.mustachizer import Mustachizer

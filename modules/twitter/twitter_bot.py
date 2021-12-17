@@ -1,21 +1,16 @@
 import logging
-
-from time import sleep
-
-from datetime import datetime
-from datetime import timezone
-from dateutil import parser
-
+from datetime import datetime, timezone
 from io import BytesIO
-from moviepy.editor import VideoFileClip
-
+from time import sleep
 from urllib.request import urlopen
 
-from modules.twitter.tweepy_wrapper import TweepyWrapper
-from modules.mustache.errors import ImageIncorrectError
-from modules.mustache.errors import NoFaceFoundError
+from dateutil import parser
+from moviepy.editor import VideoFileClip
+
+from modules.mustache.errors import ImageIncorrectError, NoFaceFoundError
 from modules.mustache.mustachizer import Mustachizer
 from modules.mustache.sentence_provider import SentenceProvider
+from modules.twitter.tweepy_wrapper import TweepyWrapper
 
 
 class BotTwitter:

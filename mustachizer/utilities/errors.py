@@ -1,4 +1,4 @@
-class JSONFilepathError(Exception):
+class JSONLoaderError(Exception):
     pass
 
 

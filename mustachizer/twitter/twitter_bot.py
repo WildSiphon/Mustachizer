@@ -1,7 +1,7 @@
 import logging
+import sys
 from datetime import datetime, timezone
 from io import BytesIO
-from time import sleep
 from urllib.request import urlopen
 
 from dateutil import parser
@@ -9,6 +9,11 @@ from moviepy.editor import VideoFileClip
 
 from mustachizer.errors import ImageIncorrectError, NoFaceFoundError
 from mustachizer.mustache_applicator import MustacheApplicator
+from mustachizer.twitter.errors import (
+    TweetNotReachable,
+    TwitterConnectionError,
+    TwitterTokenError,
+)
 from mustachizer.twitter.tweepy_wrapper import TweepyWrapper
 from mustachizer.utilities.sentence_provider import SentenceProvider
 
@@ -20,96 +25,112 @@ class BotTwitter:
     The Twiter Bot.
     """
 
-    def __init__(self, debug: bool = False):
+    def __init__(self):
         """
         Construct twitter's StacheBot.
-
-        :param debug: Whether it should print stuffs, defaults to False
         """
-
         # Set up
         self.last_datetime = datetime.now(timezone.utc)
-        self.mustachizer = MustacheApplicator(debug=debug)
+        self.mustachizer = MustacheApplicator(debug=False)
         self.sentence_provider = SentenceProvider()
 
         # Tweepy configuration
-        self.tweepy_wrapper = TweepyWrapper()
+        try:
+            self.tweepy_wrapper = TweepyWrapper()
+        except TwitterTokenError as error:
+            logger.error(error)
+            sys.exit(1)
 
     def run(self) -> None:
-        # TODO except error from connect
-        self.tweepy_wrapper.connect()
+        """
+        Brings bot to life.
+        """
+        try:
+            self.tweepy_wrapper.connect()
+            logger.info(f"Connected to '{self.name}' @{self.screen_name}\n")
+        except TwitterConnectionError as error:
+            logger.error(error)
+            sys.exit(1)
 
         while True:
-            mentions = []
-            while not mentions:
-                # TODO except error from get_last_mentions
-                mentions = self.tweepy_wrapper.get_new_mentions(
-                    posted_after_date=self.last_datetime
-                )
-                sleep(3)
-            logger.info(
-                f"{datetime.now(timezone.utc)} UTC : {len(mentions)} new mention"
+            # TODO except error from get_last_mentions
+            mentions = self.tweepy_wrapper.get_new_mentions(
+                posted_after=self.last_datetime
             )
 
             for tweet in mentions:
-                # TODO except error from reply_to_mentions
-                self.reply_to_mentions(tweet=tweet)
+                logger.info("+~~ NEW MENTION: PROCESSING ~~+")
+                # TODO except error from get_tweet_containing_medias
+                tweet_with_medias = self.get_tweet_containing_medias(tweet=tweet)
 
-    def reply_to_mentions(self, tweet: dict) -> None:
+                # Update datetime with datetime of last mention
+                self.last_datetime = max(
+                    self.last_datetime,
+                    parser.parse(tweet["created_at"]),
+                )
+
+                # Bad case :(
+                if not tweet_with_medias:
+                    logger.info("+ Tweet ignored.")
+                    continue
+
+                # Mustachize
+                try:
+                    medias = self.mustachize_medias(
+                        medias=tweet_with_medias["extended_entities"]["media"]
+                    )
+                    if medias:
+                        message = self.sentence_provider.provide()
+                    else:
+                        message = "No face found. Can't mustachize :("
+                except NotImplementedError as error:
+                    medias = []
+                    message = error
+
+                # Reply
+                try:
+                    self.tweepy_wrapper.reply_to_status(
+                        medias=medias, msg=message, status_id=tweet["id_str"]
+                    )
+                except (TweetNotReachable, NotImplementedError) as error:
+                    logger.error(f" X {error}")
+            else:
+                logger.info("+~~ NEW MENTIONS: PROCESSED ~~+\n")
+
+    def get_tweet_containing_medias(self, tweet: dict) -> dict:
         """
-        Responds to all mentions that have appeared
-        during the last period of time.
+        Identify and return tweet to respond to.
+
+        :param tweet: Tweet mentioning the bot.
         """
-        tweet_with_medias = None
-
-        # The mention is caused by a RT
-        if "retweeted_status" in tweet:
-            logger.info("Mention type : retweet")
-
         # The mention is in a tweet with media
-        elif "media" in tweet["entities"]:
-            tweet_with_medias = tweet
-            logger.info("Mention type : media")
+        if "media" in tweet["entities"]:
+            logger.info("+ Mentioned in a tweet containing media(s).")
+            return tweet
 
         # The mention is in a reply of a tweet
-        elif tweet["in_reply_to_status_id_str"]:
+        if tweet["in_reply_to_status_id_str"]:
 
             # The mention is caused by someone replying to the bot
             if tweet["in_reply_to_user_id_str"] == self.id_str:
-                logger.info("Mention type : bot reply")
+                logger.info("+ Caused by a reply to the bot.")
+                return {}
 
             # Everything seems fine
-            else:
-                logger.info("Mention type : reply")
-                replying_to = self.get_tweet_object(tweet["in_reply_to_status_id_str"])
+            logger.info("+ Mentioned in a reply.")
+            replying_to = self.get_tweet_object(tweet["in_reply_to_status_id_str"])
 
-                # The tweet to which the mention responds contains media
-                if "media" in replying_to["entities"]:
-                    tweet_with_medias = replying_to
-                else:
-                    logger.info("No media found.")
+            # The tweet to which the mention responds contains media
+            if "media" in replying_to["entities"]:
+                logger.info("+ Reply contains medias.")
+                return replying_to
+
+            logger.info("+ No media found in reply.")
+            return {}
 
         # The mention comes from something else (QRT...)
-        else:
-            logger.info("Mention type not supported !")
-
-        # If good conditions were reunited
-        if tweet_with_medias:
-            medias = [
-                media for media in tweet_with_medias["extended_entities"]["media"]
-            ]
-
-            # Mustachize
-            medias = self._mustachize_medias(medias)
-
-            # Reply
-            msg = self.sentence_provider.provide()
-            self.tweepy_wrapper.reply_to_status(
-                medias=medias, msg=msg, status_id=tweet["id_str"]
-            )
-
-        # Update date with date of last mention
-        self.last_datetime = max(self.last_datetime, parser.parse(tweet["created_at"]))
+        logger.info("+ Mention type not supported.")
+        return {}
 
     def _download_media_from_url(
         self, url: str, convert_to_gif: bool = False
@@ -144,37 +165,46 @@ class BotTwitter:
             logger.error(e)
             return BytesIO()
 
-    def _mustachize_medias(self, medias: dict) -> list:
+    def mustachize_medias(self, medias: list) -> list:
         """
-        Mustachize medias.
+        Put mustachs on medias.
 
-        :param medias: medias to mustachize
-
-        :return: mustachized medias
+        :param medias: list of medias to mustachize
         """
-        logger.info(f"{len(medias)} medias :")
+        logger.debug(f"| {len(medias)} medias found:")
 
         mustachized_medias = []
         for media in medias:
-            if media["type"] == "photo":
+            media_type = media["type"]
+
+            if media_type == "photo":
                 url = media["media_url_https"]
                 convert_to_gif = False
-            elif media["type"] == "animated_gif":
+
+            if media_type == "animated_gif":
                 url = media["video_info"]["variants"][0]["url"]
                 convert_to_gif = True
 
+            if media_type == "video":
+                error_message = "Media is a video and videos are not yet supported."
+                logger.error(f"-X {error_message}")
+                raise NotImplementedError(error_message)
+
+            logger.debug(f"-O Working on {media_type.replace('_',' ')} ({url})")
+
+            # TODO raise exception in _download_media_from_url()
             image_buffer = self._download_media_from_url(
                 url=url,
                 convert_to_gif=convert_to_gif,
             )
             try:
-                output = self.mustachizer.mustachize(BytesIO(image_buffer))
-                mustachized_medias.append(output)
-                logger.info(f"\t{url} -> Mustachized")
+                mustachized_media = self.mustachizer.mustachize(BytesIO(image_buffer))
+                mustachized_medias.append(mustachized_media)
+                logger.info(" | Mustachization successful.")
             except NoFaceFoundError:
-                logger.info(f"\t{url} -> No Faces found")
-            except ImageIncorrectError as e:
-                logger.error(e)
+                logger.info(" | No Faces found.")
+            except ImageIncorrectError as error:
+                logger.error(error)
 
         return mustachized_medias
 
@@ -184,3 +214,11 @@ class BotTwitter:
     @property
     def id_str(self):
         return self.tweepy_wrapper.id_str
+
+    @property
+    def name(self):
+        return self.tweepy_wrapper.name
+
+    @property
+    def screen_name(self):
+        return self.tweepy_wrapper.screen_name

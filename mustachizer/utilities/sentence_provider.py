@@ -2,7 +2,7 @@ import random
 
 from mustachizer import PATH
 from mustachizer.utilities import LoadJSON
-from mustachizer.utilities.errors import JSONFilepathError, SentenceProviderError
+from mustachizer.utilities.errors import JSONLoaderError, SentenceProviderError
 
 
 class SentenceProvider:
@@ -19,7 +19,7 @@ class SentenceProvider:
         try:
             sentences_filepath = PATH / "mustachizer" / "utilities" / "sentences.json"
             self.sentences = LoadJSON(filepath=sentences_filepath)["sentences"]
-        except JSONFilepathError as error:
+        except JSONLoaderError as error:
             raise SentenceProviderError(error) from error
 
     def provide(self) -> str:

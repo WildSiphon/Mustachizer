@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from mustachizer.utilities.errors import JSONFilepathError
+from mustachizer.utilities.errors import JSONLoaderError
 
 
 def LoadJSON(filepath: Path) -> dict:
@@ -10,14 +10,14 @@ def LoadJSON(filepath: Path) -> dict:
 
     :param filepath: path to a json file
     :return: loaded json file
-    :raises JSONFilepathError: something wrong happened during loading
+    :raises JSONLoaderError: something wrong happened during loading
     """
     try:
         with open(filepath) as file:
             return json.load(file)
     except json.decoder.JSONDecodeError:
-        error = f"Could not read {filepath}."
-        raise JSONFilepathError(error) from None
+        error = f"Could not read '{filepath}' content."
+        raise JSONLoaderError(error) from None
     except IOError:
-        error = f"{filepath} does not appear to exist."
-        raise JSONFilepathError(error) from None
+        error = f"'{filepath}' does not appear to exist."
+        raise JSONLoaderError(error) from None

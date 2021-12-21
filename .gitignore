@@ -1,6 +1,7 @@
-credentials*
-*__pycache__*
+*/twitter/credentials.json
+*/discord/.token
+__pycache__
+output
+*.log
 Pipfile.lock
 ENV
-modules/discord/.token
-*output*

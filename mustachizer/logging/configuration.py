@@ -1,13 +1,24 @@
 import logging.config
+import re
+from logging import Formatter
 
 from mustachizer.logging import LOGGING_LEVEL_LIST
 from mustachizer.logging.errors import LoggingLevelError
+
+
+class WhitespacesStripperFormatter(Formatter):
+    def format(self, record):
+        record = super().format(record)
+        record = re.sub(r"\s+", " ", record)
+        return record.strip()
+
 
 LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": True,
     "formatters": {
         "file": {
+            "()": "mustachizer.logging.configuration.WhitespacesStripperFormatter",
             "format": "%(asctime)s - %(filename)s - %(levelname)s - %(message)s",
         },
         "console": {

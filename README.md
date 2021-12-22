@@ -80,7 +80,9 @@ WRESTLER
 
 **Demo**
 
-Mustachization works fine with image or gif…![demo](assets/documentation/demo.gif)
+Mustachization of a photo!![demo](assets/documentation/demo_photo.gif)
+
+Mustachization of a gif!![demo](assets/documentation/demo_gif.gif)
 
 ### Twitter use
 

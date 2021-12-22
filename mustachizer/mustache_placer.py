@@ -1,26 +1,29 @@
-import random
-
 import cv2
 import numpy
 from PIL import Image
 
 from mustachizer.mustache import Mustache
-from mustachizer.mustache_type import MustacheType
 from mustachizer.tools.camera import Camera
 from mustachizer.tools.debug_drawer import DebugDrawer
 from mustachizer.tools.face import Face
 
 
 class MustachePlacer:
+    """
+    Place mustaches on medias.
+    """
+
     def __init__(self, debug: bool = False):
+        """
+        Construct the placer.
+
+        :param debug: Whether it should draw debug lines, defaults to False
+        """
         self.debug = debug
-        self._mustaches = {}
-        for mustache_type in list(MustacheType):
-            self._mustaches[mustache_type] = Mustache(**mustache_type.value)
 
     def _compute_mustache_box(self, mustache: Mustache):
         """
-        Computes the theorical boudning box of the mustache.
+        Computes the theorical bounding box of the mustache.
         """
         bottom_left_corner = mustache.anchor - numpy.array(
             [mustache.width / 2, mustache.height / 2, 0]
@@ -43,19 +46,13 @@ class MustachePlacer:
             )
         )
 
-    def choose_mustache(self, mustache_name=None):
-        if mustache_name:
-            mustache_type = [m for m in list(MustacheType) if m.name == mustache_name][
-                0
-            ]
-        else:
-            mustache_type = random.choice(list(MustacheType))
-        return mustache_type
-
     def place_mustache(
-        self, face_image: Image, camera: Camera, face: Face, mustache_type=None
+        self, face_image: Image, camera: Camera, face: Face, mustache: Mustache
     ):
-        """Place a mustache on a face."""
+        """
+        Place a mustache on a face.
+        """
+        # Construction lines
         if self.debug:
             drawer = DebugDrawer.instance().drawer
             drawer.rectangle(
@@ -81,12 +78,10 @@ class MustachePlacer:
                 "red",
             )
 
-        if not mustache_type:
-            mustache_type = self.choose_mustache()
-
-        mustache = self._mustaches[mustache_type]
+        # Get buffer of selected mustache
         mustache_image = mustache.image
 
+        # Find where and place mustache
         mustache_box = self._compute_mustache_box(mustache)
         mustache_box_projected, _ = cv2.projectPoints(
             mustache_box,
@@ -115,6 +110,7 @@ class MustachePlacer:
         mustache_image = Image.fromarray(cv2_image, "RGBA")
         face_image.paste(mustache_image, (0, 0), mustache_image.getchannel("A"))
 
+        # Draw debugs lines
         if self.debug:
             drawer = DebugDrawer.instance().drawer
             mustache_projected, _ = cv2.projectPoints(

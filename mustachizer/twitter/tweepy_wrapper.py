@@ -93,7 +93,7 @@ class TweepyWrapper:
 
         :param posted_after_date: get mentions after this datetime
         """
-        logger.info("+-- WAITING")
+        logger.info("+++ WAITING")
 
         new_mentions = []
         while not new_mentions:
@@ -112,7 +112,7 @@ class TweepyWrapper:
             sleep(12)
 
         logger.info(f"+ {len(new_mentions)} new mention(s).")
-        logger.info("+-- STOP WAITING\n")
+        logger.info("+++ STOP WAITING\n")
         return new_mentions
 
     def reply_to_status(

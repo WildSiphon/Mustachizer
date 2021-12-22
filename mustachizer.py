@@ -1,32 +1,21 @@
 import argparse
 import io
-import json
 import logging
 import os
 import sys
+from pathlib import Path
 
 import argcomplete
 
 from mustachizer import PATH
+from mustachizer.errors import ImageIncorrectError, NoFaceFoundError
 from mustachizer.logging import LOGGING_LEVEL_LIST
 from mustachizer.logging.configuration import ConfigureLogger
 from mustachizer.mustache_applicator import MustacheApplicator
 from mustachizer.mustache_type import MustacheType
+from mustachizer.utilities import FORMATS_SUPPORTED
 
-MUSTACHES_LIST = [m.name for m in MustacheType]
-MEDIA_FORMATS = json.load(
-    open(PATH / "mustachizer" / "utilities" / "formats.json", "r")
-)
-
-
-def print_banner():
-    for line in open("assets/banner.txt", "r"):
-        print(line.replace("\n", ""))
-
-
-def print_mustache_list():
-    print("Available mustaches are :", end="\n - ")
-    print(*MUSTACHES_LIST, sep="\n - ", end="\n" * 2)
+MUSTACHES_LIST = MustacheType.get_names()
 
 
 def show_media(filepath):
@@ -37,63 +26,69 @@ def show_media(filepath):
             os.system(f"powershell -c {filepath}")
         elif sys.platform.startswith("darwin"):
             os.system(f"open {filepath}")
-    except Exception as e:
-        print(f"Can't open the mustachized media : {e}")
+    except Exception as error:
+        print(f"Can't open the mustachized media : {error}")
 
 
-def main(files, mustache_name, output_location, showing):
+def main(
+    files: list,
+    output_location: Path,
+    mustache_name: str = "RANDOM",
+    showing: bool = False,
+):
     mustachizer = MustacheApplicator(debug=False)
 
+    logger.info("+==== PROCESSING ====+\n")
     for file in files:
-        logger.info(f"\nACTIVE MEDIA: '{file}'")
+        file = Path(file).resolve()
 
-        if not os.path.isfile(file):
-            logger.error("Not a file.\nMustachization is ignored.")
+        logger.info(f"+~~~~ '{file.name}'")
+
+        if not file.is_file():
+            logger.error("Doesn't exist or is not a file.")
             continue
 
-        if file.split(".")[-1].upper() not in MEDIA_FORMATS["supported"]:
-            logger.error(
-                "Media not supported. Only supporting "
-                f"{', '.join(MEDIA_FORMATS['supported'])}.\nMustachization is ignored."
-            )
+        if file.suffix.replace(".", "").upper() not in FORMATS_SUPPORTED:
+            logger.error(f"Media not supported. ('{file.suffix}')")
             continue
 
-        logger.info(
-            "SELECTED MUSTACHE: "
-            f"{mustache_name if mustache_name else '*choosen ramdomly*'}"
-        )
-
+        # Load file
         buffer = None
-
         with open(file, "rb") as image_file:
             buffer = io.BytesIO(image_file.read())
 
-        image = mustachizer.mustachize(image_buffer=buffer, mustache_name=mustache_name)
+        # Put mustaches on file
+        try:
+            image = mustachizer.mustachize(
+                image_buffer=buffer,
+                mustache_name=mustache_name,
+            )
+        except NoFaceFoundError as error:
+            logger.error(f"X {error}")
+            continue
+        except ImageIncorrectError as error:
+            logger.error(f"X {error}")
+            continue
 
-        if output_location == "./output/" and not os.path.isdir("./output/"):
-            os.mkdir("./output/")
+        # Create output directory if it doesn't exist yet
+        output_location.mkdir(parents=True, exist_ok=True)
 
-        output_name = (
-            "/"
-            + file.split("/")[-1].split(".")[0]
-            + "_mustachized."
-            + file.split(".")[-1]
-        )
-        filepath = output_location + output_name
+        # Save file
+        filepath = output_location / f"{file.stem}_mustachized{file.suffix}"
         with open(filepath, "wb") as save_file:
             save_file.write(image.read())
 
-        logger.info("Mustachization successfully done.")
-
+        # Display mustachize file
         if showing:
             show_media(filepath=filepath)
+    else:
+        logger.info("+==== ALL DONE ====+\n")
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(
         description="MUSTACHE THE WORLD!! Script to mustachize everything... or almost",
-        epilog=f"supported media format: {', '.join(MEDIA_FORMATS['supported'])}",
+        epilog=f"Mustaches names: {', '.join(MUSTACHES_LIST)}",
     )
     parser.add_argument(
         metavar="FILES",
@@ -102,85 +97,114 @@ if __name__ == "__main__":
         nargs="*",
         help="path(s) to the file(s)",
     )
-    parser.add_argument(
-        "-t",
-        "--type",
-        dest="mustache_name",
-        type=str,
-        nargs="?",
-        default="random",
-        help='choose mustache type (default is "random")',
-        choices=MUSTACHES_LIST,
+    # ~~~~~~~~~~~~~ MUSTACHES RELATED SETTINGS ~~~~~~~~~~~~#
+    stach = parser.add_argument_group(
+        "Mustaches parameters",
+        description="",
     )
-    parser.add_argument(
-        "-o",
-        "--output",
-        dest="output_location",
-        type=str,
-        nargs="?",
-        default="./output/",
-        help='choose output location (default is "./output/")',
-    )
-    parser.add_argument(
-        "-l",
-        "--list",
-        dest="listing",
+    stach.add_argument(
+        "--list-mustaches",
+        dest="list_mustaches",
         action="store_true",
         default=False,
         help="list all the mustaches types",
     )
-    parser.add_argument(
-        "-s",
+    stach.add_argument(
+        "--type",
+        dest="mustache_name",
+        type=str.upper,
+        nargs="?",
+        default="RANDOM",
+        help='choose mustache type (default is "RANDOM")',
+    )
+    # ~~~~~~~~~~~~~~~~~ SCRIPT'S SETTINGS ~~~~~~~~~~~~~~~~~#
+    settings = parser.add_argument_group(
+        "Settings",
+        description="",
+    )
+    settings.add_argument(
         "--show",
         dest="showing",
         action="store_true",
         default=False,
-        help="show the mustachized media",
+        help="display the mustachized media(s)",
     )
-    parser.add_argument(
+    settings.add_argument(
+        "--list-formats",
+        dest="list_formats",
+        action="store_true",
+        default=False,
+        help="list all the accepted media formats",
+    )
+    settings.add_argument(
+        "--no-banner",
+        dest="nobanner",
+        required=False,
+        default=False,
+        action="store_true",
+        help="doesn't display banner",
+    )
+    settings.add_argument(
+        "--output",
+        dest="dirpath",
+        type=Path,
+        nargs="?",
+        default=PATH / "output",
+        help='choose output location (default is "output/")',
+    )
+    settings.add_argument(
         "--log",
         type=str.upper,
-        help="choose level to display execution info (default is 'INFO')",
+        help="choose logging level (default is 'INFO')",
         choices=LOGGING_LEVEL_LIST,
         default="INFO",
     )
-    argcomplete.autocomplete(parser)
+
+    argcomplete.autocomplete(parser)  # TODO describe in README how to use it
     args = parser.parse_args()
 
-    print_banner()
+    if not args.nobanner:
+        print(open("assets/banner.txt", "r").read())
 
-    if args.listing:
-        print_mustache_list()
+    if args.list_formats:
+        print(
+            f"\nSupported media format: {', '.join(FORMATS_SUPPORTED['supported'])}\n"
+        )
+
+    if args.list_mustaches:
+        print("Available mustaches are :", end="\n - ")
+        print(*MUSTACHES_LIST, sep="\n - ", end="\n" * 2)
+
     if not args.paths:
-        parser.error("Please indicate at least one media to mustachize")
+        parser.error("Please indicate at least one media to mustachize.")
 
     # Create logger at the correct level
     ConfigureLogger(console_level=args.log)
     logger = logging.getLogger("stachlog")
 
     files = args.paths
-    if args.mustache_name.upper() not in MUSTACHES_LIST:
-        if args.mustache_name != "random":
-            logger.warning(
-                f'"{args.mustache_name}" is not a valid mustache. '
-                "A random 'stache will be assigned"
-            )
-            print_mustache_list()
-        mustache_name = None
-    else:
-        mustache_name = args.mustache_name.upper()
-    if os.path.isdir(args.output_location) or args.output_location == "./output/":
-        output_location = args.output_location
-    else:
+
+    # Define mustache
+    mustache_name = args.mustache_name
+    if mustache_name not in [*MUSTACHES_LIST, "RANDOM"]:
         logger.warning(
-            f'Can\'t find directory "{args.output_location}". '
-            'Mustachized media(s) will be saved in "./output/"'
+            f'"{mustache_name}" is not a valid mustache. '
+            "A random 'stache will be assigned"
         )
-        output_location = "./output/"
+        mustache_name = "RANDOM"
+
+    # Define output directory
+    output_location = args.dirpath
+    if output_location.exists() and not output_location.is_dir():
+        logger.warning(
+            f"'{output_location}' is not a directory. "
+            f"Mustachized media(s) will be saved in '{PATH}/output'"
+        )
+        output_location = PATH / "output"
 
     main(
         files=files,
         mustache_name=mustache_name,
-        output_location=output_location,
+        output_location=output_location.resolve(),
         showing=args.showing,
     )

@@ -32,8 +32,16 @@ class FaceFinder:
     )
     FACE_2D_INDEXES = [30, 8, 36, 45, 48, 54]
 
-    def __init__(self, debug=False):
+    def __init__(self, debug: bool = False):
+        """
+        Construct the finder.
+
+        :param debug: Whether it should draw debug lines, defaults to False
+        """
         self.debug = debug
+
+        # Load model
+        # TODO hide model loaded in log
         self._face_marker = cv2.face.createFacemarkLBF()
         self._face_marker.loadModel(f"{PATH}/models/face_marker_models/lbf.model")
 

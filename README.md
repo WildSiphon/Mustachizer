@@ -45,7 +45,7 @@ If you want to mustachize your pictures by yourself, simply run `mustachizer.py`
 **Options available**
 
 ```
-usage: mustachizer.py [-h] [-t [MUSTACHE_NAME]] [-o [OUTPUT_LOCATION]] [-l] [-s] [FILES [FILES ...]]
+usage: mustachizer.py [-h] [--list-mustaches] [--type [MUSTACHE_NAME]] [--show] [--list-formats] [--no-banner] [--output [DIRPATH]] [--log {CRITICAL,ERROR,WARNING,INFO,DEBUG,NOTSET}] [FILES [FILES ...]]
 
 MUSTACHE THE WORLD!! Script to mustachize everything... or almost
 
@@ -54,12 +54,24 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -t [MUSTACHE_NAME]    choose mustache type (default is "random")
-  -o [OUTPUT_LOCATION]  choose output location (default is "./output/")
-  -l, --list            list all the mustaches types
-  -s, --show            show the mustachized media
 
-supported media format: BAY, BW, CR2, CRW, DNG, EMF, EMZ, G3F, G3N, GIF, HDP, JFIF, JP2, JPC, JPE, JPEG, JPG, MRW, NEF, NRW, ORF, PCC, PDD, PEF, PNG, PXM, RAF, RAW, RLE, SCR, SRF, TARGA, WMF, X3F, XCF
+Mustaches parameters:
+
+  --list-mustaches      list all the mustaches types
+  --type [MUSTACHE_NAME]
+                        choose mustache type (default is "RANDOM")
+
+Settings:
+
+  --show                display the mustachized media(s)
+  --list-formats        list all the accepted media formats
+  --no-banner           doesn't display banner
+  --output [DIRPATH]    choose output location (default is "output/")
+  --log {CRITICAL,ERROR,WARNING,INFO,DEBUG,NOTSET}
+                        choose logging level (default is 'INFO')
+
+Mustaches names: BAMBINO, CAPTAIN_HOOK, DOCTOR_WATSON, EDWARDIAN, FANCY_CURL, HANDLEBAR, HERCULE_POIROT, HULK_HOGAN, KAISER_WILHELM, REVERSE_HANDLEBAR, ROLLIE_FINGERS, SALVADOR_DALI, TRYPHON_TOURNESOL,
+WRESTLER
 ```
 
 **Mustaches available**

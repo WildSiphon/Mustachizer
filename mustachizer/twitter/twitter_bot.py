@@ -59,7 +59,7 @@ class BotTwitter:
             )
 
             for tweet in mentions:
-                logger.info("+~~ NEW MENTION: PROCESSING ~~+")
+                logger.info("+~~~~ NEW MENTION")
                 # TODO except error from get_tweet_containing_medias
                 tweet_with_medias = self.get_tweet_containing_medias(tweet=tweet)
 
@@ -95,7 +95,7 @@ class BotTwitter:
                 except (TweetNotReachable, NotImplementedError) as error:
                     logger.error(f" X {error}")
             else:
-                logger.info("+~~ NEW MENTIONS: PROCESSED ~~+\n")
+                logger.info("+~~~~ ALL DONE\n")
 
     def get_tweet_containing_medias(self, tweet: dict) -> dict:
         """
@@ -161,8 +161,8 @@ class BotTwitter:
                 logger=None,
             )
             return open("/tmp/output.gif", "rb").read()
-        except OSError as e:
-            logger.error(e)
+        except OSError as error:
+            logger.error(f"X {error}")
             return BytesIO()
 
     def mustachize_medias(self, medias: list) -> list:
@@ -187,10 +187,10 @@ class BotTwitter:
 
             if media_type == "video":
                 error_message = "Media is a video and videos are not yet supported."
-                logger.error(f"-X {error_message}")
+                logger.error(f"X {error_message}")
                 raise NotImplementedError(error_message)
 
-            logger.debug(f"-O Working on {media_type.replace('_',' ')} ({url})")
+            logger.info(f"+-- Working on {media_type.replace('_',' ')} ({url})")
 
             # TODO raise exception in _download_media_from_url()
             image_buffer = self._download_media_from_url(
@@ -200,11 +200,10 @@ class BotTwitter:
             try:
                 mustachized_media = self.mustachizer.mustachize(BytesIO(image_buffer))
                 mustachized_medias.append(mustachized_media)
-                logger.info(" | Mustachization successful.")
-            except NoFaceFoundError:
-                logger.info(" | No Faces found.")
+            except NoFaceFoundError as error:
+                logger.warning(f"X {error}")
             except ImageIncorrectError as error:
-                logger.error(error)
+                logger.warning(f"X {error}")
 
         return mustachized_medias
 

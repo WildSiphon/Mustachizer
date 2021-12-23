@@ -34,7 +34,7 @@ class MustacheApplicator:
         self,
         image_buffer: io.BytesIO,
         mustache_name: str = "RANDOM",
-        mustache_size: int = 1,
+        mustache_size: str = "realist",
     ) -> io.BytesIO:
         """Place mustaches on an image.
 

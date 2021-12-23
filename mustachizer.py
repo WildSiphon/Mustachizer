@@ -34,7 +34,7 @@ def main(
     files: list,
     output_location: Path,
     mustache_name: str = "RANDOM",
-    mustache_size: int = 1,
+    mustache_size: str = "realist",
     showing: bool = False,
 ):
     mustachizer = MustacheApplicator(debug=False)
@@ -113,12 +113,12 @@ if __name__ == "__main__":
     )
     stach.add_argument(
         "--size",
-        type=int,
+        type=str,
         dest="size",
         required=False,
-        choices=[1, 2, 3, 4, 5],
-        default=1,
-        help='choose size of the mustache (default is "1")',
+        choices=["realist", "big", "massive"],
+        default="realist",
+        help='choose size of the mustache (default is "realist")',
     )
     stach.add_argument(
         "--type",

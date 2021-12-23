@@ -113,16 +113,6 @@ class MustacheType(Enum):
         max_size=1.3,
     )
 
-    """Pas top celles-là
-    THIN_STRAIGHT = {
-        "name":"THIN_STRAIGHT"
-        "image_path":PATH / "Thin_Straight.png",
-        "anchor":numpy.float32([0, -70, -50]),
-        "width":0.7,
-    }
-    MAGNUM = PATH / "Magnum.png"
-    """
-
     @classmethod
     def get_names(cls) -> list:
         return list(cls.__members__)

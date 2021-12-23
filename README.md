@@ -152,11 +152,13 @@ You can now enjoy a pretty mustache !
 ## <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f4dd.png" alt="memo" style="zoom:33%;" /> Stuff to add
 
 + ~~Creating `mustachizer.py` to mustachize locally~~
-+ Improve output of `mustachizer`
++ ~~Improve output of `mustachizer`~~
 + ~~Finish the README~~
 + ~~Comment all the code~~
 + ~~Implement gif support~~
 + Implement video support
++ Add options to choose the size of the mustache
++ Add twitter options to pass param (mustache name, size...)
 + Adding more sentences when bot is posting result of mustachisation
 + MORE MUSTACHES (maybe not… but maybe more)
 

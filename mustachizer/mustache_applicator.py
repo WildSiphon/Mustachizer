@@ -31,11 +31,16 @@ class MustacheApplicator:
         self.face_finder = FaceFinder(debug=debug)
 
     def mustachize(
-        self, image_buffer: io.BytesIO, mustache_name: str = "RANDOM"
+        self,
+        image_buffer: io.BytesIO,
+        mustache_name: str = "RANDOM",
+        mustache_size: int = 1,
     ) -> io.BytesIO:
         """Place mustaches on an image.
 
         :param image_buffer: The buffer containing the image
+        :param mustache_name: Name of the mustache
+        :param mustache_size: Size of the mustache (between 1 and 5)
 
         :raises NoFaceFoundError: No face has been found on the image
         :raises ImageIncorrectError: The provided image is not in the correct format
@@ -76,29 +81,31 @@ class MustacheApplicator:
             # Faces found in frame
             if faces:
                 recognized_faces = True
-                # Logger
                 # Iterate each face
                 for face in faces:
                     # Get mustache
                     mustache_type = getattr(
                         MustacheType, mustache_name, MustacheType.random()
-                    )
+                    ).value
+                    mustache_type.size = mustache_size
                     mustache_list.append(mustache_type.name)
                     # Place mustache
                     self.mustache_placer.place_mustache(
                         face_image=image_frame,
                         camera=camera,
                         face=face,
-                        mustache=mustache_type.value,
+                        mustache=mustache_type,
                     )
             mustachized_frames.append(image_frame)
 
         if not recognized_faces:
             raise NoFaceFoundError("No face found in media.")
 
+        # Logger
         logger.debug(f"| Format : {format_}")
         logger.debug(f"| Frames : {nb_frames}")
         logger.debug(f"| Max faces found on a single frame : {max_faces_found}")
+        logger.debug(f"| Mustache(s) size: {mustache_size}")
         logger.debug(f"| Number of mustaches placed: {len(mustache_list)}")
         logger.debug(f"| Mustache(s) used: {', '.join(set(mustache_list))}")
 

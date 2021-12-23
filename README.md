@@ -45,7 +45,8 @@ If you want to mustachize your pictures by yourself, simply run `mustachizer.py`
 **Options available**
 
 ```
-usage: mustachizer.py [-h] [--list-mustaches] [--type [MUSTACHE_NAME]] [--show] [--list-formats] [--no-banner] [--output [DIRPATH]] [--log {CRITICAL,ERROR,WARNING,INFO,DEBUG,NOTSET}] [FILES [FILES ...]]
+usage: mustachizer.py [-h] [--list-mustaches] [--size {1,2,3,4,5}] [--type [NAME]] [--show] [--list-formats] [--no-banner] [--output [DIRPATH]] [--log {CRITICAL,ERROR,WARNING,INFO,DEBUG,NOTSET}]
+                      [FILES [FILES ...]]
 
 MUSTACHE THE WORLD!! Script to mustachize everything... or almost
 
@@ -58,8 +59,8 @@ optional arguments:
 Mustaches parameters:
 
   --list-mustaches      list all the mustaches types
-  --type [MUSTACHE_NAME]
-                        choose mustache type (default is "RANDOM")
+  --size {1,2,3,4,5}    choose size of the mustache (default is "1")
+  --type [NAME]         choose mustache type (default is "RANDOM")
 
 Settings:
 
@@ -68,7 +69,7 @@ Settings:
   --no-banner           doesn't display banner
   --output [DIRPATH]    choose output location (default is "output/")
   --log {CRITICAL,ERROR,WARNING,INFO,DEBUG,NOTSET}
-                        choose logging level (default is 'INFO')
+                        choose logging level (default is "INFO")
 
 Mustaches names: BAMBINO, CAPTAIN_HOOK, DOCTOR_WATSON, EDWARDIAN, FANCY_CURL, HANDLEBAR, HERCULE_POIROT, HULK_HOGAN, KAISER_WILHELM, REVERSE_HANDLEBAR, ROLLIE_FINGERS, SALVADOR_DALI, TRYPHON_TOURNESOL,
 WRESTLER

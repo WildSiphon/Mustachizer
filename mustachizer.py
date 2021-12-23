@@ -34,11 +34,12 @@ def main(
     files: list,
     output_location: Path,
     mustache_name: str = "RANDOM",
+    mustache_size: int = 1,
     showing: bool = False,
 ):
     mustachizer = MustacheApplicator(debug=False)
 
-    logger.info("+==== PROCESSING ====+\n")
+    logger.info("+==== PROCESSING ====+")
     for file in files:
         file = Path(file).resolve()
 
@@ -62,6 +63,7 @@ def main(
             image = mustachizer.mustachize(
                 image_buffer=buffer,
                 mustache_name=mustache_name,
+                mustache_size=mustache_size,
             )
         except NoFaceFoundError as error:
             logger.error(f"X {error}")
@@ -82,7 +84,7 @@ def main(
         if showing:
             show_media(filepath=filepath)
     else:
-        logger.info("+==== ALL DONE ====+\n")
+        logger.info("+==== ALL DONE ====+")
 
 
 if __name__ == "__main__":
@@ -110,7 +112,17 @@ if __name__ == "__main__":
         help="list all the mustaches types",
     )
     stach.add_argument(
+        "--size",
+        type=int,
+        dest="size",
+        required=False,
+        choices=[1, 2, 3, 4, 5],
+        default=1,
+        help='choose size of the mustache (default is "1")',
+    )
+    stach.add_argument(
         "--type",
+        metavar="NAME",
         dest="mustache_name",
         type=str.upper,
         nargs="?",
@@ -155,7 +167,7 @@ if __name__ == "__main__":
     settings.add_argument(
         "--log",
         type=str.upper,
-        help="choose logging level (default is 'INFO')",
+        help='choose logging level (default is "INFO")',
         choices=LOGGING_LEVEL_LIST,
         default="INFO",
     )
@@ -205,6 +217,7 @@ if __name__ == "__main__":
     main(
         files=files,
         mustache_name=mustache_name,
+        mustache_size=args.size,
         output_location=output_location.resolve(),
         showing=args.showing,
     )

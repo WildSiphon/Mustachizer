@@ -47,7 +47,11 @@ class MustachePlacer:
         )
 
     def place_mustache(
-        self, face_image: Image, camera: Camera, face: Face, mustache: Mustache
+        self,
+        face_image: Image,
+        camera: Camera,
+        face: Face,
+        mustache: Mustache,
     ):
         """
         Place a mustache on a face.

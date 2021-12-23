@@ -157,7 +157,8 @@ You can now enjoy a pretty mustache !
 + ~~Comment all the code~~
 + ~~Implement gif support~~
 + Implement video support
-+ Add options to choose the size of the mustache
++ ~~Add options to choose the size of the mustache~~
++ Implement unittest
 + Add twitter options to pass param (mustache name, size...)
 + Adding more sentences when bot is posting result of mustachisation
 + MORE MUSTACHES (maybe not… but maybe more)

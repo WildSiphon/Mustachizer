@@ -53,49 +53,51 @@ class BotTwitter:
             sys.exit(1)
 
         while True:
-            # TODO except error from get_last_mentions
+            # TODO except error from get_new_mentions
             mentions = self.tweepy_wrapper.get_new_mentions(
                 posted_after=self.last_datetime
             )
+            self.process_mentions(mentions)
 
-            for tweet in mentions:
-                logger.info("+~~~~ NEW MENTION")
-                # TODO except error from get_tweet_containing_medias
-                tweet_with_medias = self.get_tweet_containing_medias(tweet=tweet)
+    def process_mentions(self, mentions: list):
+        for tweet in mentions:
+            logger.info("+~~~~ NEW MENTION")
+            # TODO except error from get_tweet_containing_medias
+            tweet_with_medias = self.get_tweet_containing_medias(tweet=tweet)
 
-                # Update datetime with datetime of last mention
-                self.last_datetime = max(
-                    self.last_datetime,
-                    parser.parse(tweet["created_at"]),
+            # Update datetime with datetime of last mention
+            self.last_datetime = max(
+                self.last_datetime,
+                parser.parse(tweet["created_at"]),
+            )
+
+            # Bad case :(
+            if not tweet_with_medias:
+                logger.info("+ Tweet ignored.")
+                continue
+
+            # Mustachize
+            try:
+                medias = self.mustachize_medias(
+                    medias=tweet_with_medias["extended_entities"]["media"]
                 )
+                if medias:
+                    message = self.sentence_provider.provide()
+                else:
+                    message = "No face found. Can't mustachize :("
+            except NotImplementedError as error:
+                medias = []
+                message = error
 
-                # Bad case :(
-                if not tweet_with_medias:
-                    logger.info("+ Tweet ignored.")
-                    continue
-
-                # Mustachize
-                try:
-                    medias = self.mustachize_medias(
-                        medias=tweet_with_medias["extended_entities"]["media"]
-                    )
-                    if medias:
-                        message = self.sentence_provider.provide()
-                    else:
-                        message = "No face found. Can't mustachize :("
-                except NotImplementedError as error:
-                    medias = []
-                    message = error
-
-                # Reply
-                try:
-                    self.tweepy_wrapper.reply_to_status(
-                        medias=medias, msg=message, status_id=tweet["id_str"]
-                    )
-                except (TweetNotReachable, NotImplementedError) as error:
-                    logger.error(f" X {error}")
-            else:
-                logger.info("+~~~~ ALL DONE\n")
+            # Reply
+            try:
+                self.tweepy_wrapper.reply_to_status(
+                    medias=medias, msg=message, status_id=tweet["id_str"]
+                )
+            except (TweetNotReachable, NotImplementedError) as error:
+                logger.error(f" X {error}")
+        else:
+            logger.info("+~~~~ ALL DONE\n")
 
     def get_tweet_containing_medias(self, tweet: dict) -> dict:
         """
@@ -132,7 +134,7 @@ class BotTwitter:
         logger.info("+ Mention type not supported.")
         return {}
 
-    def _download_media_from_url(
+    def download_media_from_url(
         self, url: str, convert_to_gif: bool = False
     ) -> BytesIO:
         """
@@ -192,8 +194,8 @@ class BotTwitter:
 
             logger.info(f"+-- Working on {media_type.replace('_',' ')} ({url})")
 
-            # TODO raise exception in _download_media_from_url()
-            image_buffer = self._download_media_from_url(
+            # TODO raise exception in download_media_from_url()
+            image_buffer = self.download_media_from_url(
                 url=url,
                 convert_to_gif=convert_to_gif,
             )

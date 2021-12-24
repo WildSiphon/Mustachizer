@@ -1,0 +1,6 @@
+[run]
+# Pattern of files we want to measure
+# include = #stuff
+
+# Pattern of files we don't want to measure
+omit = test*

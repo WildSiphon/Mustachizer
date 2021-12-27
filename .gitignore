@@ -5,3 +5,4 @@ output
 *.log
 Pipfile.lock
 ENV
+.coverage

@@ -2,6 +2,7 @@ import logging
 import sys
 from datetime import datetime, timezone
 from io import BytesIO
+from pathlib import Path
 from urllib.request import urlopen
 
 from dateutil import parser
@@ -53,49 +54,50 @@ class BotTwitter:
             sys.exit(1)
 
         while True:
-            # TODO except error from get_last_mentions
+            # TODO except error from get_new_mentions
             mentions = self.tweepy_wrapper.get_new_mentions(
                 posted_after=self.last_datetime
             )
+            self.process_mentions(mentions)
 
-            for tweet in mentions:
-                logger.info("+~~~~ NEW MENTION")
-                # TODO except error from get_tweet_containing_medias
-                tweet_with_medias = self.get_tweet_containing_medias(tweet=tweet)
+    def process_mentions(self, mentions: list):
+        for tweet in mentions:
+            logger.info("+~~~~ NEW MENTION")
+            # TODO except error from get_tweet_containing_medias
+            tweet_with_medias = self.get_tweet_containing_medias(tweet=tweet)
 
-                # Update datetime with datetime of last mention
-                self.last_datetime = max(
-                    self.last_datetime,
-                    parser.parse(tweet["created_at"]),
+            # Update datetime with datetime of last mention
+            self.last_datetime = max(
+                self.last_datetime,
+                parser.parse(tweet["created_at"]),
+            )
+
+            # Bad case :(
+            if not tweet_with_medias:
+                logger.info("+ Tweet ignored.")
+                continue
+            # Mustachize
+            try:
+                medias = self.mustachize_medias(
+                    medias=tweet_with_medias["extended_entities"]["media"]
                 )
+                if medias:
+                    message = self.sentence_provider.provide()
+                else:
+                    message = "No face found. Can't mustachize :("
+            except NotImplementedError as error:
+                medias = []
+                message = error
 
-                # Bad case :(
-                if not tweet_with_medias:
-                    logger.info("+ Tweet ignored.")
-                    continue
-
-                # Mustachize
-                try:
-                    medias = self.mustachize_medias(
-                        medias=tweet_with_medias["extended_entities"]["media"]
-                    )
-                    if medias:
-                        message = self.sentence_provider.provide()
-                    else:
-                        message = "No face found. Can't mustachize :("
-                except NotImplementedError as error:
-                    medias = []
-                    message = error
-
-                # Reply
-                try:
-                    self.tweepy_wrapper.reply_to_status(
-                        medias=medias, msg=message, status_id=tweet["id_str"]
-                    )
-                except (TweetNotReachable, NotImplementedError) as error:
-                    logger.error(f" X {error}")
-            else:
-                logger.info("+~~~~ ALL DONE\n")
+            # Reply
+            try:
+                self.tweepy_wrapper.reply_to_status(
+                    medias=medias, msg=message, status_id=tweet["id_str"]
+                )
+            except (TweetNotReachable, NotImplementedError) as error:
+                logger.error(f"X {error}")
+        else:
+            logger.info("+~~~~ ALL DONE\n")
 
     def get_tweet_containing_medias(self, tweet: dict) -> dict:
         """
@@ -132,14 +134,15 @@ class BotTwitter:
         logger.info("+ Mention type not supported.")
         return {}
 
-    def _download_media_from_url(
-        self, url: str, convert_to_gif: bool = False
+    def download_media_from_url(
+        self, url: str, convert_to_gif: bool = False, tmp_folder: Path = Path("/tmp")
     ) -> BytesIO:
         """
         Download media from url.
 
-        :param url: url's media
-        :param convert_to_gif: media must be converted to gif
+        :param url: url's media.
+        :param convert_to_gif: media must be converted to gif.
+        :tmp_folder: where to save temporary video files when converting to gif.
 
         :return: downloaded media
         """
@@ -147,20 +150,23 @@ class BotTwitter:
         if not convert_to_gif:
             return file.read()
 
+        # TODO tmp must be in mustachizer folder
         try:
-            with open("/tmp/video_to_gif", "wb") as save_file:
+            tmp_filepath = Path(tmp_folder)
+            with open(tmp_filepath / "video_to_gif", "wb") as save_file:
                 save_file.write(file.read())
             clip = VideoFileClip(
-                filename="/tmp/video_to_gif",
+                filename=f"{tmp_filepath}/video_to_gif",
                 audio=False,
             )
             clip.write_gif(
-                filename="/tmp/output.gif",
+                filename=tmp_filepath / "output.gif",
                 fps=None,
                 program="ffmpeg",
                 logger=None,
             )
-            return open("/tmp/output.gif", "rb").read()
+            return open(tmp_filepath / "output.gif", "rb").read()
+        # TODO do not return BytesIO() object but raise exception instead
         except OSError as error:
             logger.error(f"X {error}")
             return BytesIO()
@@ -190,19 +196,17 @@ class BotTwitter:
                 logger.error(f"X {error_message}")
                 raise NotImplementedError(error_message)
 
-            logger.info(f"+-- Working on {media_type.replace('_',' ')} ({url})")
+            logger.info(f"+-- Processing: {media_type.replace('_',' ')} ({url})")
 
-            # TODO raise exception in _download_media_from_url()
-            image_buffer = self._download_media_from_url(
+            # TODO raise exception in download_media_from_url()
+            image_buffer = self.download_media_from_url(
                 url=url,
                 convert_to_gif=convert_to_gif,
             )
             try:
                 mustachized_media = self.mustachizer.mustachize(BytesIO(image_buffer))
                 mustachized_medias.append(mustachized_media)
-            except NoFaceFoundError as error:
-                logger.warning(f"X {error}")
-            except ImageIncorrectError as error:
+            except (NoFaceFoundError, ImageIncorrectError) as error:
                 logger.warning(f"X {error}")
 
         return mustachized_medias

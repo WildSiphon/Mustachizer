@@ -1,2 +1,4 @@
 -r base.txt # include base requirements
 pre-commit>=2.16.0
+coverage>=6.2
+tomli>=2.0.0

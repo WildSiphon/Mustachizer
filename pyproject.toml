@@ -21,3 +21,10 @@ min_confidence = 70
 paths = ["mustachizer.py","main_twitter.py","main_discord.py","mustachizer"]
 sort_by_size = true
 verbose = false
+
+[tool.coverage.run]
+# Pattern of files we want to measure
+# include = #stuff
+
+# Pattern of files we don't want to measure
+omit = ["test*"]

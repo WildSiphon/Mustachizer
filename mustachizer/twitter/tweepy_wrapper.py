@@ -23,6 +23,8 @@ class TweepyWrapper:
     Homemade wrapper for Tweepy.
     """
 
+    CREDENTIALS_FILEPATH = PATH / "mustachizer" / "twitter" / "credentials.json"
+
     TOKEN_REQUIREMENT = {
         "API_KEY",
         "API_SECRET_KEY",
@@ -51,18 +53,17 @@ class TweepyWrapper:
         :raises TwitterTokenError: can't load token or token missing parameters
         """
         # Load
-        credentials_filepath = PATH / "mustachizer" / "twitter" / "credentials.json"
         try:
-            self.token = LoadJSON(filepath=credentials_filepath)
+            self.token = LoadJSON(filepath=TweepyWrapper.CREDENTIALS_FILEPATH)
         except JSONLoaderError as error:
             raise TwitterTokenError(error) from error
 
         # Check
-        if not self.TOKEN_REQUIREMENT.issubset(self.token):
-            missing_parameters = self.TOKEN_REQUIREMENT - self.token.keys()
+        if not TweepyWrapper.TOKEN_REQUIREMENT.issubset(self.token):
+            missing_parameters = TweepyWrapper.TOKEN_REQUIREMENT - self.token.keys()
             error_message = (
                 f"Missing parameter(s) {missing_parameters} "
-                f"in '{credentials_filepath}'."
+                f"in '{TweepyWrapper.CREDENTIALS_FILEPATH}'."
             )
             raise TwitterTokenError(error_message)
 

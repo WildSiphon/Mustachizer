@@ -111,7 +111,7 @@ Install dev requirements:
 $ pip install -r requirements/dev.txt
 ```
 
-Then install in your git folder `pre-commit`:
+Then install `pre-commit` in your git folder:
 ```
 $ pre-commit install
 ```

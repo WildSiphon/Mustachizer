@@ -10,22 +10,22 @@ And because it's funny and we like to share, we made it a twitter bot ([@RealSta
 
 If you want to use our work locally, just follow instructions below :
 
-### Using `requirements.txt`
+### Using `pip` requirements
 
 ```bash
-git clone https://github.com/WildSiphon/Mustachizer.git
-cd Mustachizer
-pip install -r requirements/mustachizer.txt
+$ git clone https://github.com/WildSiphon/Mustachizer.git
+$ cd Mustachizer
+$ pip install -r requirements/mustachizer.txt
 ```
 
-*Change the file name based on your usage. Choose between `mustachizer.txt`,`twitter_bot.txt` or `discord_bot.txt`*
+*Change the file name based on your usage. Choose between `mustachizer.txt`, `twitter_bot.txt` or `discord_bot.txt`*
 
 ### Using `Pipenv`
 
 ```bash
-git clone https://github.com/WildSiphon/Mustachizer.git
-cd Mustachizer
-pipenv shell
+$ git clone https://github.com/WildSiphon/Mustachizer.git
+$ cd Mustachizer
+$ pipenv shell
 ```
 
 ### Using `docker`
@@ -39,13 +39,13 @@ Just kidding, we haven't gone that far.
 If you want to mustachize your pictures by yourself, simply run `mustachizer.py` :
 
 ```bash
-~$ python3 mustachizer.py --show "FILE"
+$ python3 mustachizer.py --show "FILE"
 ```
 
 **Options available**
 
 ```
-usage: mustachizer.py [-h] [--list-mustaches] [--size {1,2,3,4,5}] [--type [NAME]] [--show] [--list-formats] [--no-banner] [--output [DIRPATH]] [--log {CRITICAL,ERROR,WARNING,INFO,DEBUG,NOTSET}]
+usage: mustachizer.py [-h] [--list-mustaches] [--size {realist,big,massive}] [--type [NAME]] [--show] [--list-formats] [--no-banner] [--output [DIRPATH]] [--log {CRITICAL,ERROR,WARNING,INFO,DEBUG,NOTSET}]
                       [FILES [FILES ...]]
 
 MUSTACHE THE WORLD!! Script to mustachize everything... or almost
@@ -59,7 +59,8 @@ optional arguments:
 Mustaches parameters:
 
   --list-mustaches      list all the mustaches types
-  --size {1,2,3,4,5}    choose size of the mustache (default is "1")
+  --size {realist,big,massive}
+                        choose size of the mustache (default is "realist")
   --type [NAME]         choose mustache type (default is "RANDOM")
 
 Settings:
@@ -73,6 +74,7 @@ Settings:
 
 Mustaches names: BAMBINO, CAPTAIN_HOOK, DOCTOR_WATSON, EDWARDIAN, FANCY_CURL, HANDLEBAR, HERCULE_POIROT, HULK_HOGAN, KAISER_WILHELM, REVERSE_HANDLEBAR, ROLLIE_FINGERS, SALVADOR_DALI, TRYPHON_TOURNESOL,
 WRESTLER
+
 ```
 
 **Mustaches available**
@@ -101,6 +103,18 @@ If you publish your own bot based on our work, please ***link the project and ou
 
 We published the code for a discord bot but didn't make one public.
 Feel free to use our project for personal use only, but ***don't make a public bot with it***.
+
+### Developers use
+
+Install dev requirements:
+```bash
+$ pip install -r requirements/dev.txt
+```
+
+Then install in your git folder `pre-commit`:
+```
+$ pre-commit install
+```
 
 ## <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f4da.png" alt="books" style="zoom:33%;" /> Code review
 

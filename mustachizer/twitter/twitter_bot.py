@@ -135,13 +135,14 @@ class BotTwitter:
         return {}
 
     def download_media_from_url(
-        self, url: str, convert_to_gif: bool = False
+        self, url: str, convert_to_gif: bool = False, tmp_folder: Path = Path("/tmp")
     ) -> BytesIO:
         """
         Download media from url.
 
-        :param url: url's media
-        :param convert_to_gif: media must be converted to gif
+        :param url: url's media.
+        :param convert_to_gif: media must be converted to gif.
+        :tmp_folder: where to save temporary video files when converting to gif.
 
         :return: downloaded media
         """
@@ -149,13 +150,13 @@ class BotTwitter:
         if not convert_to_gif:
             return file.read()
 
-        # TODO use tmp in mustachizer folder
+        # TODO tmp must be in mustachizer folder
         try:
-            tmp_filepath = Path("/tmp")
+            tmp_filepath = Path(tmp_folder)
             with open(tmp_filepath / "video_to_gif", "wb") as save_file:
                 save_file.write(file.read())
             clip = VideoFileClip(
-                filename=tmp_filepath / "video_to_gif",
+                filename=f"{tmp_filepath}/video_to_gif",
                 audio=False,
             )
             clip.write_gif(
@@ -165,8 +166,7 @@ class BotTwitter:
                 logger=None,
             )
             return open(tmp_filepath / "output.gif", "rb").read()
-        # TODO test if working, really not sure
-        # TODO do not return BytesIO() object but raise exception
+        # TODO do not return BytesIO() object but raise exception instead
         except OSError as error:
             logger.error(f"X {error}")
             return BytesIO()

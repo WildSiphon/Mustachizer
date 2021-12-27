@@ -1,6 +1,7 @@
 import datetime
 import logging
 import unittest
+from io import BytesIO
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -18,6 +19,8 @@ from mustachizer.utilities.sentence_provider import SentenceProvider
 ConfigureLogger(console_level="DEBUG")
 logger = logging.getLogger("stachlog")
 
+IMG_STREAM = open(Path("test", "resources", "img_stream.jpg"), "rb")
+
 
 class TestBotTwitter(unittest.TestCase):
     """
@@ -31,6 +34,9 @@ class TestBotTwitter(unittest.TestCase):
         patched_TweepyWrapper.name = "bot_name"
         patched_TweepyWrapper.screen_name = "bot_screen_name"
         patched_TweepyWrapper.reply_to_status.side_effect = NotImplementedError
+        patched_tweet_object = Mock()
+        patched_tweet_object._json = "tweet_object"
+        patched_TweepyWrapper.api.lookup_statuses.return_value = [patched_tweet_object]
         with patch(
             "mustachizer.twitter.twitter_bot.TweepyWrapper",
             return_value=patched_TweepyWrapper,
@@ -164,16 +170,42 @@ class TestBotTwitter(unittest.TestCase):
         )
         self.assertEqual(return_tweet, self.tweet_template)
 
-    def test_download_media_from_url(self):
-        pass
+    @patch("mustachizer.twitter.twitter_bot.open")
+    @patch("mustachizer.twitter.twitter_bot.urlopen")
+    def test_download_media_from_url(self, patch_urlopen, patch_open):
+        patch_urlopen.return_value = IMG_STREAM
+
+        # Download photo
+        file = self.twitter_bot.download_media_from_url(url="url", convert_to_gif=False)
+        self.assertEqual(file, IMG_STREAM.read())
+
+        tmp_folder_test = Path("this/is/tmp/folder")
+        # Download animated gif OK
+        with patch(
+            "mustachizer.twitter.twitter_bot.VideoFileClip"
+        ) as patch_VideoFileClip:
+            file = self.twitter_bot.download_media_from_url(
+                url="url",
+                convert_to_gif=True,
+                tmp_folder=tmp_folder_test,
+            )
+            patch_VideoFileClip.assert_called_with(
+                filename="this/is/tmp/folder/video_to_gif",
+                audio=False,
+            )
+
+        # Download animated gif KO: wrong temporary files folder
+        file = self.twitter_bot.download_media_from_url(
+            url="url",
+            convert_to_gif=True,
+            tmp_folder=tmp_folder_test,
+        )
+        self.assertIsInstance(file, BytesIO)
 
     @patch.object(BotTwitter, "download_media_from_url")
     def test_mustachize_medias(self, patch_download_media_from_url):
         # Mock stream media downloaded
-        patch_download_media_from_url.return_value = open(
-            Path("test", "resources", "img_stream.jpg"),
-            "rb",
-        ).read()
+        patch_download_media_from_url.return_value = IMG_STREAM.read()
 
         # Media is video
         with self.assertRaises(NotImplementedError):
@@ -211,7 +243,11 @@ class TestBotTwitter(unittest.TestCase):
             self.twitter_bot.mustachize_medias(medias=[self.media_template])
 
     def test_get_tweet_object(self):
-        pass
+        tweet_object = self.twitter_bot.get_tweet_object(id="id")
+        self.twitter_bot.tweepy_wrapper.api.lookup_statuses.assert_called_with(
+            id=["id"]
+        )
+        self.assertEqual(tweet_object, "tweet_object")
 
     def test_id_str(self):
         self.assertEqual(self.twitter_bot.id_str, "bot_id_str")

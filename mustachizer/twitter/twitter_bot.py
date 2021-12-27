@@ -2,6 +2,7 @@ import logging
 import sys
 from datetime import datetime, timezone
 from io import BytesIO
+from pathlib import Path
 from urllib.request import urlopen
 
 from dateutil import parser
@@ -75,7 +76,6 @@ class BotTwitter:
             if not tweet_with_medias:
                 logger.info("+ Tweet ignored.")
                 continue
-
             # Mustachize
             try:
                 medias = self.mustachize_medias(
@@ -95,7 +95,7 @@ class BotTwitter:
                     medias=medias, msg=message, status_id=tweet["id_str"]
                 )
             except (TweetNotReachable, NotImplementedError) as error:
-                logger.error(f" X {error}")
+                logger.error(f"X {error}")
         else:
             logger.info("+~~~~ ALL DONE\n")
 
@@ -149,20 +149,24 @@ class BotTwitter:
         if not convert_to_gif:
             return file.read()
 
+        # TODO use tmp in mustachizer folder
         try:
-            with open("/tmp/video_to_gif", "wb") as save_file:
+            tmp_filepath = Path("/tmp")
+            with open(tmp_filepath / "video_to_gif", "wb") as save_file:
                 save_file.write(file.read())
             clip = VideoFileClip(
-                filename="/tmp/video_to_gif",
+                filename=tmp_filepath / "video_to_gif",
                 audio=False,
             )
             clip.write_gif(
-                filename="/tmp/output.gif",
+                filename=tmp_filepath / "output.gif",
                 fps=None,
                 program="ffmpeg",
                 logger=None,
             )
-            return open("/tmp/output.gif", "rb").read()
+            return open(tmp_filepath / "output.gif", "rb").read()
+        # TODO test if working, really not sure
+        # TODO do not return BytesIO() object but raise exception
         except OSError as error:
             logger.error(f"X {error}")
             return BytesIO()
@@ -192,7 +196,7 @@ class BotTwitter:
                 logger.error(f"X {error_message}")
                 raise NotImplementedError(error_message)
 
-            logger.info(f"+-- Working on {media_type.replace('_',' ')} ({url})")
+            logger.info(f"+-- Processing: {media_type.replace('_',' ')} ({url})")
 
             # TODO raise exception in download_media_from_url()
             image_buffer = self.download_media_from_url(
@@ -202,9 +206,7 @@ class BotTwitter:
             try:
                 mustachized_media = self.mustachizer.mustachize(BytesIO(image_buffer))
                 mustachized_medias.append(mustachized_media)
-            except NoFaceFoundError as error:
-                logger.warning(f"X {error}")
-            except ImageIncorrectError as error:
+            except (NoFaceFoundError, ImageIncorrectError) as error:
                 logger.warning(f"X {error}")
 
         return mustachized_medias

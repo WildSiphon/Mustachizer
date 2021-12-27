@@ -1,26 +1,22 @@
 import datetime
 import logging
 import unittest
+from pathlib import Path
 from unittest.mock import Mock, patch
 
+from dateutil.tz import tzutc
+
+from mustachizer.errors import ImageIncorrectError, NoFaceFoundError
 from mustachizer.logging.configuration import ConfigureLogger
 from mustachizer.mustache_applicator import MustacheApplicator
-from mustachizer.twitter.errors import (  # TweetNotReachable,
-    TwitterConnectionError,
-    TwitterTokenError,
-)
+from mustachizer.twitter.errors import TwitterConnectionError, TwitterTokenError
 from mustachizer.twitter.tweepy_wrapper import TweepyWrapper
 from mustachizer.twitter.twitter_bot import BotTwitter
 from mustachizer.utilities.sentence_provider import SentenceProvider
 
 # Create logger at the correct level
-ConfigureLogger(console_level="ERROR")
+ConfigureLogger(console_level="DEBUG")
 logger = logging.getLogger("stachlog")
-
-TWEET_TEMPLATE = {
-    "entities": None,
-    "in_reply_to_status_id_str": None,
-}
 
 
 class TestBotTwitter(unittest.TestCase):
@@ -34,6 +30,7 @@ class TestBotTwitter(unittest.TestCase):
         patched_TweepyWrapper.id_str = "bot_id_str"
         patched_TweepyWrapper.name = "bot_name"
         patched_TweepyWrapper.screen_name = "bot_screen_name"
+        patched_TweepyWrapper.reply_to_status.side_effect = NotImplementedError
         with patch(
             "mustachizer.twitter.twitter_bot.TweepyWrapper",
             return_value=patched_TweepyWrapper,
@@ -45,6 +42,13 @@ class TestBotTwitter(unittest.TestCase):
             "in_reply_to_user_id_str": "user_id_str",
             "in_reply_to_status_id_str": "status_id_str",
             "entities": {},
+        }
+
+        # Media template
+        self.media_template = {
+            "type": None,
+            "media_url_https": "photo/url",
+            "video_info": {"variants": [{"url": "animated_gif/url"}]},
         }
 
     def test__init__(self):
@@ -84,8 +88,43 @@ class TestBotTwitter(unittest.TestCase):
             )
             self.twitter_bot.run()
 
-    def test_process_mentions(self):
-        pass
+    @patch.object(BotTwitter, "mustachize_medias")
+    @patch.object(BotTwitter, "get_tweet_containing_medias")
+    def test_process_mentions(
+        self, patch_get_tweet_containing_medias, patch_mustachize_medias
+    ):
+        mentions = [
+            {"created_at": "Sat Dec 25 16:14:02 +0000 2100", "id_str": "This is id"}
+        ]
+
+        # No media to mustachize
+        patch_get_tweet_containing_medias.return_value = {}
+        with self.assertLogs("stachlog", "INFO"):
+            self.twitter_bot.process_mentions(mentions=mentions)
+
+        # Last datetime has been updated
+        self.assertEqual(
+            self.twitter_bot.last_datetime,
+            datetime.datetime(2100, 12, 25, 16, 14, 2, tzinfo=tzutc()),
+        )
+
+        # Tweet containing medias
+        patch_get_tweet_containing_medias.return_value = {
+            "extended_entities": {"media": {}}
+        }
+
+        # No media mustachized
+        patch_mustachize_medias.return_value = []
+        self.twitter_bot.process_mentions(mentions=mentions)
+
+        # Medias mustachized
+        patch_mustachize_medias.return_value = [{"mustachized_media": "something"}]
+        self.twitter_bot.process_mentions(mentions=mentions)
+
+        # Mustachization of media not implemented
+        patch_mustachize_medias.side_effect = NotImplementedError
+        with self.assertLogs("stachlog", "ERROR"):
+            self.twitter_bot.process_mentions(mentions=mentions)
 
     def test_get_tweet_containing_medias(self):
         # Tweet is a reply to a status
@@ -128,8 +167,48 @@ class TestBotTwitter(unittest.TestCase):
     def test_download_media_from_url(self):
         pass
 
-    def test_mustachize_medias(self):
-        pass
+    @patch.object(BotTwitter, "download_media_from_url")
+    def test_mustachize_medias(self, patch_download_media_from_url):
+        # Mock stream media downloaded
+        patch_download_media_from_url.return_value = open(
+            Path("test", "resources", "img_stream.jpg"),
+            "rb",
+        ).read()
+
+        # Media is video
+        with self.assertRaises(NotImplementedError):
+            self.media_template["type"] = "video"
+            self.twitter_bot.mustachize_medias(medias=[self.media_template])
+
+        # Mock MustacheApplicator for next tests
+        self.twitter_bot.mustachizer = Mock()
+
+        # Media is animated_gif
+        self.media_template["type"] = "animated_gif"
+        medias = self.twitter_bot.mustachize_medias(medias=[self.media_template])
+        patch_download_media_from_url.assert_called_with(
+            url="animated_gif/url",
+            convert_to_gif=True,
+        )
+        self.assertIsInstance(medias, list)
+
+        # Media is photo
+        self.media_template["type"] = "photo"
+        self.twitter_bot.mustachize_medias(medias=[self.media_template])
+        patch_download_media_from_url.assert_called_with(
+            url="photo/url",
+            convert_to_gif=False,
+        )
+
+        # NoFaceFoundError
+        self.twitter_bot.mustachizer.mustachize.side_effect = NoFaceFoundError()
+        with self.assertLogs("stachlog", "WARNING"):
+            self.twitter_bot.mustachize_medias(medias=[self.media_template])
+
+        # ImageIncorrectError
+        self.twitter_bot.mustachizer.mustachize.side_effect = ImageIncorrectError()
+        with self.assertLogs("stachlog", "WARNING"):
+            self.twitter_bot.mustachize_medias(medias=[self.media_template])
 
     def test_get_tweet_object(self):
         pass

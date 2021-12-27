@@ -174,6 +174,7 @@ You can now enjoy a pretty mustache !
 + ~~Add options to choose the size of the mustache~~
 + Implement unittest
 + Add twitter options to pass param (mustache name, size...)
++ Add mustache color management based on hair color
 + Adding more sentences when bot is posting result of mustachisation
 + MORE MUSTACHES (maybe not… but maybe more)
 

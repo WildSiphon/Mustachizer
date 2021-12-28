@@ -19,7 +19,7 @@ from mustachizer.utilities.sentence_provider import SentenceProvider
 ConfigureLogger(console_level="DEBUG")
 logger = logging.getLogger("stachlog")
 
-IMG_STREAM = open(Path("test", "resources", "img_stream.jpg"), "rb")
+IMG_STREAM = open(Path("test", "resources", "twitter", "img_stream.jpg"), "rb")
 
 
 class TestBotTwitter(unittest.TestCase):

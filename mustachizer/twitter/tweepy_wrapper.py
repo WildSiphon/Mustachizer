@@ -2,10 +2,9 @@ import logging
 from datetime import datetime
 from time import sleep
 
-import tweepy
 from dateutil import parser
 from tweepy import API, OAuthHandler
-from tweepy.errors import TweepyException
+from tweepy.errors import BadRequest, Forbidden, TweepyException
 
 from mustachizer import PATH
 from mustachizer.twitter.errors import (
@@ -97,7 +96,7 @@ class TweepyWrapper:
         logger.info("+++ WAITING")
 
         new_mentions = []
-        while not new_mentions:
+        while True:
             mentions_timeline = self.api.mentions_timeline()
             logger.debug(f"| {len(mentions_timeline)} status found...")
 
@@ -110,6 +109,8 @@ class TweepyWrapper:
                 ):
                     new_mentions.append(status)
 
+            if new_mentions:
+                break
             sleep(12)
 
         logger.info(f"+ {len(new_mentions)} new mention(s).")
@@ -142,10 +143,10 @@ class TweepyWrapper:
                 auto_populate_reply_metadata=True,
             )
         # TODO handle this and post big medias
-        except tweepy.errors.BadRequest as error:
+        except BadRequest as error:
             error_message = "Media too big, file size must be under 5242880 bytes."
             raise NotImplementedError(error_message) from error
-        except tweepy.errors.Forbidden as error:
+        except Forbidden as error:
             error_message = "Tweet deleted or no more visible to you."
             raise TweetNotReachable(error_message) from error
 

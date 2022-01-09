@@ -11,6 +11,8 @@ from moviepy.editor import VideoFileClip
 from mustachizer.errors import ImageIncorrectError, NoFaceFoundError
 from mustachizer.mustache_applicator import MustacheApplicator
 from mustachizer.twitter.errors import (
+    MediaTypeError,
+    MultipleUploadError,
     TweetNotReachable,
     TwitterConnectionError,
     TwitterTokenError,
@@ -76,6 +78,7 @@ class BotTwitter:
             if not tweet_with_medias:
                 logger.info("+ Tweet ignored.")
                 continue
+
             # Mustachize
             try:
                 medias = self.mustachize_medias(
@@ -94,7 +97,12 @@ class BotTwitter:
                 self.tweepy_wrapper.reply_to_status(
                     medias=medias, msg=message, status_id=tweet["id_str"]
                 )
-            except (TweetNotReachable, NotImplementedError) as error:
+            except (
+                TweetNotReachable,
+                MultipleUploadError,
+                NotImplementedError,
+                MediaTypeError,
+            ) as error:
                 logger.error(f"X {error}")
         else:
             logger.info("+~~~~ ALL DONE\n")
@@ -135,22 +143,23 @@ class BotTwitter:
         return {}
 
     def download_media_from_url(
-        self, url: str, convert_to_gif: bool = False, tmp_folder: Path = Path("/tmp")
+        self, url: str, media_type: str, tmp_folder: Path = Path("/tmp")
     ) -> BytesIO:
         """
         Download media from url.
 
         :param url: url's media.
-        :param convert_to_gif: media must be converted to gif.
+        :param media_type: media must be converted to gif.
         :tmp_folder: where to save temporary video files when converting to gif.
 
         :return: downloaded media
         """
         file = urlopen(url)
-        if not convert_to_gif:
+        if media_type == "photo":
             return file.read()
 
         # TODO tmp must be in mustachizer folder
+        # TODO no tmp folder at all, use BytesIO object
         try:
             tmp_filepath = Path(tmp_folder)
             with open(tmp_filepath / "video_to_gif", "wb") as save_file:
@@ -173,7 +182,7 @@ class BotTwitter:
 
     def mustachize_medias(self, medias: list) -> list:
         """
-        Put mustachs on medias.
+        Put mustaches on medias.
 
         :param medias: list of medias to mustachize
         """
@@ -185,11 +194,9 @@ class BotTwitter:
 
             if media_type == "photo":
                 url = media["media_url_https"]
-                convert_to_gif = False
 
             if media_type == "animated_gif":
                 url = media["video_info"]["variants"][0]["url"]
-                convert_to_gif = True
 
             if media_type == "video":
                 error_message = "Media is a video and videos are not yet supported."
@@ -201,11 +208,13 @@ class BotTwitter:
             # TODO raise exception in download_media_from_url()
             image_buffer = self.download_media_from_url(
                 url=url,
-                convert_to_gif=convert_to_gif,
+                media_type=media_type,
             )
             try:
                 mustachized_media = self.mustachizer.mustachize(BytesIO(image_buffer))
-                mustachized_medias.append(mustachized_media)
+                mustachized_medias.append(
+                    {"buffer": mustachized_media, "type": media_type}
+                )
             except (NoFaceFoundError, ImageIncorrectError) as error:
                 logger.warning(f"X {error}")
 

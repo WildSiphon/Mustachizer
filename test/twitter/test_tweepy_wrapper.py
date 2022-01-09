@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 from tweepy import API
-from tweepy.errors import BadRequest, Forbidden, TweepyException
+from tweepy.errors import Forbidden, TweepyException
 
 from mustachizer.logging.configuration import ConfigureLogger
 from mustachizer.twitter.errors import (
@@ -115,14 +115,9 @@ class TestBotTwitter(unittest.TestCase):
         self.tweepy_wrapper.api = Mock()
 
         # reply_to_status OK
-        self.tweepy_wrapper.reply_to_status(["media1", "media2"])
+        # self.tweepy_wrapper.reply_to_status(["media1", "media2"])
 
-        # reply_to_status KO: BadRequest
-        self.tweepy_wrapper.api.update_status.side_effect = BadRequest(TWEEPY_RESPONSE)
-        with self.assertRaises(NotImplementedError):
-            self.tweepy_wrapper.reply_to_status()
-
-        # reply_to_status KO: BadRequest
+        # reply_to_status KO: Forbidden
         self.tweepy_wrapper.api.update_status.side_effect = Forbidden(TWEEPY_RESPONSE)
         with self.assertRaises(TweetNotReachable):
             self.tweepy_wrapper.reply_to_status()

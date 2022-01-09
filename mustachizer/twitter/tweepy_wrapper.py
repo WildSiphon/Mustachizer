@@ -4,10 +4,13 @@ from time import sleep
 
 from dateutil import parser
 from tweepy import API, OAuthHandler
-from tweepy.errors import BadRequest, Forbidden, TweepyException
+from tweepy.errors import Forbidden, TweepyException
 
 from mustachizer import PATH
 from mustachizer.twitter.errors import (
+    MediaTypeError,
+    MixedMediasError,
+    MultipleUploadError,
     TweetNotReachable,
     TwitterConnectionError,
     TwitterTokenError,
@@ -30,6 +33,8 @@ class TweepyWrapper:
         "ACCESS_TOKEN",
         "ACCESS_TOKEN_SECRET",
     }
+
+    TWITTER_MEDIA_TYPES = {"photo", "animated_gif", "video"}
 
     def __init__(self):
         """
@@ -118,22 +123,66 @@ class TweepyWrapper:
         return new_mentions
 
     def reply_to_status(
-        self, medias: dict = [], msg: str = "", status_id: str = ""
+        self, medias: list = [], msg: str = "", status_id: str = ""
     ) -> None:
         """
         Reply to a tweet.
 
-        :param medias: list of medias to post
+        :param medias: list of dict containing media buffer and twitter media type
         :param msg: text to post
         :param status_id: tweet's id to reply to
         """
-        if medias:
-            media_ids = [
-                self.api.media_upload(file=media, filename="").media_id_string
-                for media in medias
-            ]
+        medias_types = {media["type"] for media in medias}
+
+        # Check medias types
+        bad_type = medias_types.difference(TweepyWrapper.TWITTER_MEDIA_TYPES)
+        if bad_type:
+            error_message = (
+                f"Invalid media type given: '{', '.join(bad_type)}'. "
+                f"Must be in {list(TweepyWrapper.TWITTER_MEDIA_TYPES)}."
+            )
+            raise MediaTypeError(error_message)
+
+        media_ids = []
+
+        # All medias are photos
+        if all(type_ == "photo" for type_ in medias_types):
+            for media in medias:
+                media_ids.append(
+                    self.api.media_upload(
+                        filename="",
+                        file=media["buffer"],
+                    ).media_id_string
+                )
+
+        # All medias are GIF
+        elif all(type_ == "animated_gif" for type_ in medias_types):
+
+            if len(medias) != 1:
+                error_message = "Can't upload multiple gif in a single tweet."
+                raise MultipleUploadError(error_message)
+
+            for media in medias:
+                media_ids.append(
+                    self.api.chunked_upload(
+                        filename="",
+                        file=media["buffer"],
+                        file_type="image/gif",
+                        media_category="tweet_gif",
+                        wait_for_async_finalize=True,
+                    ).media_id_string
+                )
+
+        # All medias are videos
+        elif all(type_ == "video" for type_ in medias_types):
+            error_message = "Mustachization of video is not yet implemented."
+            raise NotImplementedError(error_message)
+
         else:
-            media_ids = None
+            error_message = "Can't upload different type of media at the same time."
+            raise MixedMediasError(error_message)
+
+        # TODO use create_media_metadata() to add alt text to medias
 
         try:
             self.api.update_status(
@@ -142,10 +191,6 @@ class TweepyWrapper:
                 in_reply_to_status_id=status_id,
                 auto_populate_reply_metadata=True,
             )
-        # TODO handle this and post big medias
-        except BadRequest as error:
-            error_message = "Media too big, file size must be under 5242880 bytes."
-            raise NotImplementedError(error_message) from error
         except Forbidden as error:
             error_message = "Tweet deleted or no more visible to you."
             raise TweetNotReachable(error_message) from error

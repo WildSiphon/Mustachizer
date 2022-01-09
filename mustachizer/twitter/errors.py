@@ -12,3 +12,19 @@ class TwitterConnectionError(TweepyWrapperError):
 
 class TweetNotReachable(TweepyWrapperError):
     pass
+
+
+class MediaUploadError(TweepyWrapperError):
+    pass
+
+
+class MediaTypeError(TweepyWrapperError):
+    pass
+
+
+class MultipleUploadError(MediaUploadError):
+    pass
+
+
+class MixedMediasError(MediaUploadError):
+    pass

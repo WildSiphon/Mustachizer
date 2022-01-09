@@ -5,10 +5,13 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 from tweepy import API
-from tweepy.errors import BadRequest, Forbidden, TweepyException
+from tweepy.errors import Forbidden, TweepyException
 
 from mustachizer.logging.configuration import ConfigureLogger
 from mustachizer.twitter.errors import (
+    MediaTypeError,
+    MixedMediasError,
+    MultipleUploadError,
     TweetNotReachable,
     TwitterConnectionError,
     TwitterTokenError,
@@ -114,15 +117,40 @@ class TestBotTwitter(unittest.TestCase):
     def test_reply_to_status(self):
         self.tweepy_wrapper.api = Mock()
 
-        # reply_to_status OK
-        self.tweepy_wrapper.reply_to_status(["media1", "media2"])
+        # reply_to_status OK: photo
+        self.tweepy_wrapper.reply_to_status(
+            medias=[
+                {"type": "photo", "buffer": "photo_buffer_1"},
+                {"type": "photo", "buffer": "photo_buffer_2"},
+            ]
+        )
 
-        # reply_to_status KO: BadRequest
-        self.tweepy_wrapper.api.update_status.side_effect = BadRequest(TWEEPY_RESPONSE)
+        # reply_to_status OK: gif
+        self.tweepy_wrapper.reply_to_status(
+            medias=[{"type": "animated_gif", "buffer": "animated_gif_buffer"}]
+        )
+
+        # reply_to_status KO: bad type provided
+        with self.assertRaises(MediaTypeError):
+            self.tweepy_wrapper.reply_to_status(medias=[{"type": "badtype"}])
+
+        # reply_to_status KO: gif provided multiple times
+        with self.assertRaises(MultipleUploadError):
+            self.tweepy_wrapper.reply_to_status(
+                medias=[{"type": "animated_gif"}, {"type": "animated_gif"}]
+            )
+
+        # reply_to_status KO: video provided
         with self.assertRaises(NotImplementedError):
-            self.tweepy_wrapper.reply_to_status()
+            self.tweepy_wrapper.reply_to_status(medias=[{"type": "video"}])
 
-        # reply_to_status KO: BadRequest
+        # reply_to_status KO: mixed type provided
+        with self.assertRaises(MixedMediasError):
+            self.tweepy_wrapper.reply_to_status(
+                medias=[{"type": "photo"}, {"type": "video"}]
+            )
+
+        # reply_to_status KO: Forbidden
         self.tweepy_wrapper.api.update_status.side_effect = Forbidden(TWEEPY_RESPONSE)
         with self.assertRaises(TweetNotReachable):
             self.tweepy_wrapper.reply_to_status()

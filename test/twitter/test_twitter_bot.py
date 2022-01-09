@@ -176,7 +176,7 @@ class TestBotTwitter(unittest.TestCase):
         patch_urlopen.return_value = IMG_STREAM
 
         # Download photo
-        file = self.twitter_bot.download_media_from_url(url="url", convert_to_gif=False)
+        file = self.twitter_bot.download_media_from_url(url="url", media_type="photo")
         self.assertEqual(file, IMG_STREAM.read())
 
         tmp_folder_test = Path("this/is/tmp/folder")
@@ -186,7 +186,7 @@ class TestBotTwitter(unittest.TestCase):
         ) as patch_VideoFileClip:
             file = self.twitter_bot.download_media_from_url(
                 url="url",
-                convert_to_gif=True,
+                media_type="animated_gif",
                 tmp_folder=tmp_folder_test,
             )
             patch_VideoFileClip.assert_called_with(
@@ -197,7 +197,7 @@ class TestBotTwitter(unittest.TestCase):
         # Download animated gif KO: wrong temporary files folder
         file = self.twitter_bot.download_media_from_url(
             url="url",
-            convert_to_gif=True,
+            media_type="animated_gif",
             tmp_folder=tmp_folder_test,
         )
         self.assertIsInstance(file, BytesIO)
@@ -220,7 +220,7 @@ class TestBotTwitter(unittest.TestCase):
         medias = self.twitter_bot.mustachize_medias(medias=[self.media_template])
         patch_download_media_from_url.assert_called_with(
             url="animated_gif/url",
-            convert_to_gif=True,
+            media_type="animated_gif",
         )
         self.assertIsInstance(medias, list)
 
@@ -229,7 +229,7 @@ class TestBotTwitter(unittest.TestCase):
         self.twitter_bot.mustachize_medias(medias=[self.media_template])
         patch_download_media_from_url.assert_called_with(
             url="photo/url",
-            convert_to_gif=False,
+            media_type="photo",
         )
 
         # NoFaceFoundError

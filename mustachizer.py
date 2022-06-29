@@ -5,8 +5,6 @@ import os
 import sys
 from pathlib import Path
 
-import argcomplete
-
 from mustachizer import PATH
 from mustachizer.errors import ImageIncorrectError, NoFaceFoundError
 from mustachizer.logging import LOGGING_LEVEL_LIST
@@ -172,7 +170,6 @@ if __name__ == "__main__":
         default="INFO",
     )
 
-    argcomplete.autocomplete(parser)  # TODO describe in README how to use it
     args = parser.parse_args()
 
     if not args.nobanner:

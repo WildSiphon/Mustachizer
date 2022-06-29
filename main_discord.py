@@ -1,6 +1,6 @@
 from mustachizer import PATH
-from mustachizer.discord.discord_bot import DiscordBot
-from mustachizer.logging.configuration import ConfigureLogger
+from mustachizer.discord import DiscordBot
+from mustachizer.logging import ConfigureLogger
 
 # Create logger at the correct level
 ConfigureLogger(log_file="discord_bot", console_level="INFO")

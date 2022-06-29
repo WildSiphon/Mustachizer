@@ -7,8 +7,7 @@ from pathlib import Path
 
 from mustachizer import PATH
 from mustachizer.errors import ImageIncorrectError, NoFaceFoundError
-from mustachizer.logging import LOGGING_LEVEL_LIST
-from mustachizer.logging.configuration import ConfigureLogger
+from mustachizer.logging import LOGGING_LEVEL_LIST, ConfigureLogger
 from mustachizer.mustache_applicator import MustacheApplicator
 from mustachizer.mustache_type import MustacheType
 from mustachizer.utilities import FORMATS_SUPPORTED
@@ -17,6 +16,7 @@ MUSTACHES_LIST = MustacheType.get_names()
 
 
 def show_media(filepath):
+    logger.info("Show the mustache(s)")
     try:
         if sys.platform.startswith("linux"):
             os.system(f"xdg-open {filepath}")
@@ -25,7 +25,7 @@ def show_media(filepath):
         elif sys.platform.startswith("darwin"):
             os.system(f"open {filepath}")
     except Exception as error:
-        print(f"Can't open the mustachized media : {error}")
+        logger.error(f"{error}")
 
 
 def main(
@@ -37,21 +37,23 @@ def main(
 ):
     mustachizer = MustacheApplicator(debug=False)
 
-    logger.info("+==== PROCESSING ====+")
+    logger.info("Mustachizer start")
+
     for file in files:
         file = Path(file).resolve()
 
-        logger.info(f"+~~~~ '{file.name}'")
+        logger.info(f"Processing file {file}")
 
         if not file.is_file():
-            logger.error("Doesn't exist or is not a file.")
+            logger.error("File not found")
             continue
 
         if file.suffix.replace(".", "").upper() not in FORMATS_SUPPORTED:
-            logger.error(f"Media not supported. ('{file.suffix}')")
+            logger.error(f"Extension '{file.suffix}' is not supported")
             continue
 
         # Load file
+        logger.info("Load media")
         buffer = None
         with open(file, "rb") as image_file:
             buffer = io.BytesIO(image_file.read())
@@ -64,10 +66,10 @@ def main(
                 mustache_size=mustache_size,
             )
         except NoFaceFoundError as error:
-            logger.error(f"X {error}")
+            logger.error(f"{error}")
             continue
         except ImageIncorrectError as error:
-            logger.error(f"X {error}")
+            logger.error(f"{error}")
             continue
 
         # Create output directory if it doesn't exist yet
@@ -75,6 +77,7 @@ def main(
 
         # Save file
         filepath = output_location / f"{file.stem}_mustachized{file.suffix}"
+        logger.info(f"New media saved {filepath}")
         with open(filepath, "wb") as save_file:
             save_file.write(image.read())
 
@@ -82,7 +85,7 @@ def main(
         if showing:
             show_media(filepath=filepath)
     else:
-        logger.info("+==== ALL DONE ====+")
+        logger.info("Mustachizer stop")
 
 
 if __name__ == "__main__":

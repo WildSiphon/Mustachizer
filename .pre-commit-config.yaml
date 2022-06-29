@@ -10,14 +10,14 @@ repos:
     name: Sort imports
     description: Sort python imports
 - repo: https://github.com/psf/black
-  rev: 21.12b0
+  rev: 22.6.0
   hooks:
   - id: black
     name: Format with black
     description: General python formatter
     language_version: python3
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.0.1
+  rev: v4.3.0
   hooks:
   - id: trailing-whitespace
   - id: end-of-file-fixer
@@ -32,7 +32,7 @@ repos:
   - id: check-merge-conflict
   - id: check-case-conflict
 - repo: https://github.com/jendrikseipp/vulture
-  rev: v2.3
+  rev: v2.4
   hooks:
   - id: vulture
     name: Check for unused code

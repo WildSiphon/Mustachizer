@@ -47,7 +47,7 @@ class MustacheApplicator:
 
         :return: The modified image
         """
-        logger.info("+ Mustachization:")
+        logger.info("Apply mustache(s)")
         try:
             image = Image.open(image_buffer, formats=self._supported_formats)
         except Exception as exception:
@@ -102,12 +102,12 @@ class MustacheApplicator:
             raise NoFaceFoundError("No face found in media.")
 
         # Logger
-        logger.debug(f"| Format : {format_}")
-        logger.debug(f"| Frames : {nb_frames}")
-        logger.debug(f"| Max faces found on a single frame : {max_faces_found}")
-        logger.debug(f"| Mustache(s) size: {mustache_size}")
-        logger.debug(f"| Number of mustaches placed: {len(mustache_list)}")
-        logger.debug(f"| Mustache(s) used: {', '.join(set(mustache_list))}")
+        logger.debug(f"Format : {format_}")
+        logger.debug(f"Frames : {nb_frames}")
+        logger.debug(f"Max faces found on a single frame : {max_faces_found}")
+        logger.debug(f"Number of mustaches placed: {len(mustache_list)}")
+        logger.debug(f"Type: {', '.join(set(mustache_list))}")
+        logger.debug(f"Size: {mustache_size}")
 
         output_stream = io.BytesIO()
         if format_ == "JPEG":
@@ -124,7 +124,6 @@ class MustacheApplicator:
             )
         output_stream.seek(0)
 
-        logger.info("+ Done.")
         return output_stream
 
     @property

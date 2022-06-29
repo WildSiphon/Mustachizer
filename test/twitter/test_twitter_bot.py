@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 from dateutil.tz import tzutc
 
 from mustachizer.errors import ImageIncorrectError, NoFaceFoundError
-from mustachizer.logging.configuration import ConfigureLogger
+from mustachizer.logging import ConfigureLogger
 from mustachizer.mustache_applicator import MustacheApplicator
 from mustachizer.twitter.errors import TwitterConnectionError, TwitterTokenError
 from mustachizer.twitter.tweepy_wrapper import TweepyWrapper

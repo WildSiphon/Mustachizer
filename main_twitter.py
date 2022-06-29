@@ -1,6 +1,6 @@
 import logging
 
-from mustachizer.logging.configuration import ConfigureLogger
+from mustachizer.logging import ConfigureLogger
 from mustachizer.twitter.twitter_bot import BotTwitter
 
 # Create logger at the correct level
@@ -10,13 +10,13 @@ logger = logging.getLogger("stachlog")
 
 def main():
     twitter_bot = BotTwitter()
-    logger.info("+======== BOT STARTED ========+")
+    logger.info("StachBot started")
     try:
         twitter_bot.run()
-    except (SystemExit, KeyboardInterrupt) as error:
-        logger.error(error)
+    except (SystemExit, KeyboardInterrupt):
+        pass
     finally:
-        logger.info("+======== BOT STOPPED ========+")
+        logger.info("StachBot stopped")
 
 
 if __name__ == "__main__":

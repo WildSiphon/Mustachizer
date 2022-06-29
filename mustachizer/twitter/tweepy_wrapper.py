@@ -98,14 +98,13 @@ class TweepyWrapper:
 
         :param posted_after_date: get mentions after this datetime
         """
-        logger.info("+++ WAITING")
+
+        logger.info("Waiting for new mention(s)")
+        logger.debug(f"Total of {len(self.api.mentions_timeline())} status found")
 
         new_mentions = []
         while True:
-            mentions_timeline = self.api.mentions_timeline()
-            logger.debug(f"| {len(mentions_timeline)} status found...")
-
-            for status in mentions_timeline:
+            for status in self.api.mentions_timeline():
                 status = status._json
                 # Status must neither be a retweet or an old tweet
                 if (
@@ -118,8 +117,7 @@ class TweepyWrapper:
                 break
             sleep(12)
 
-        logger.info(f"+ {len(new_mentions)} new mention(s).")
-        logger.info("+++ STOP WAITING\n")
+        logger.info(f"{len(new_mentions)} new mention(s) found")
         return new_mentions
 
     def reply_to_status(

@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 from tweepy import API
 from tweepy.errors import Forbidden, TweepyException
 
-from mustachizer.logging.configuration import ConfigureLogger
+from mustachizer.logging import ConfigureLogger
 from mustachizer.twitter.errors import (
     MediaTypeError,
     MixedMediasError,

@@ -64,7 +64,6 @@ class BotTwitter:
 
     def process_mentions(self, mentions: list):
         for tweet in mentions:
-            logger.info("+~~~~ NEW MENTION")
             # TODO except error from get_tweet_containing_medias
             tweet_with_medias = self.get_tweet_containing_medias(tweet=tweet)
 
@@ -76,7 +75,7 @@ class BotTwitter:
 
             # Bad case :(
             if not tweet_with_medias:
-                logger.info("+ Tweet ignored.")
+                logger.info("Tweet ignored")
                 continue
 
             # Mustachize
@@ -97,15 +96,16 @@ class BotTwitter:
                 self.tweepy_wrapper.reply_to_status(
                     medias=medias, msg=message, status_id=tweet["id_str"]
                 )
+                logger.info("Replied to the mention with the mustachized media(s)")
             except (
                 TweetNotReachable,
                 MultipleUploadError,
                 NotImplementedError,
                 MediaTypeError,
             ) as error:
-                logger.error(f"X {error}")
+                logger.error(f"{error}")
         else:
-            logger.info("+~~~~ ALL DONE\n")
+            logger.info("All mentions processed")
 
     def get_tweet_containing_medias(self, tweet: dict) -> dict:
         """
@@ -115,7 +115,7 @@ class BotTwitter:
         """
         # The mention is in a tweet with media
         if "media" in tweet["entities"]:
-            logger.info("+ Mentioned in a tweet containing media(s).")
+            logger.info("Mentioned in a tweet containing media(s)")
             return tweet
 
         # The mention is in a reply of a tweet
@@ -123,23 +123,22 @@ class BotTwitter:
 
             # The mention is caused by someone replying to the bot
             if tweet["in_reply_to_user_id_str"] == self.id_str:
-                logger.info("+ Caused by a reply to the bot.")
+                logger.info("Mentioned caused by a reply to the bot")
                 return {}
 
             # Everything seems fine
-            logger.info("+ Mentioned in a reply.")
             replying_to = self.get_tweet_object(tweet["in_reply_to_status_id_str"])
 
             # The tweet to which the mention responds contains media
             if "media" in replying_to["entities"]:
-                logger.info("+ Reply contains medias.")
+                logger.info("Mentioned in a reply to a tweet containing medias")
                 return replying_to
 
-            logger.info("+ No media found in reply.")
+            logger.info("Mentioned in a reply to a tweet with no media")
             return {}
 
         # The mention comes from something else (QRT...)
-        logger.info("+ Mention type not supported.")
+        logger.info("Mention type not supported")
         return {}
 
     def download_media_from_url(
@@ -154,6 +153,8 @@ class BotTwitter:
 
         :return: downloaded media
         """
+        logger.info("Download media from url")
+
         file = urlopen(url)
         if media_type == "photo":
             return file.read()
@@ -162,12 +163,14 @@ class BotTwitter:
         # TODO no tmp folder at all, use BytesIO object
         try:
             tmp_filepath = Path(tmp_folder)
+            logger.debug("Temporary save the file as a video")
             with open(tmp_filepath / "video_to_gif", "wb") as save_file:
                 save_file.write(file.read())
             clip = VideoFileClip(
                 filename=f"{tmp_filepath}/video_to_gif",
                 audio=False,
             )
+            logger.debug("Convert the video into gif")
             clip.write_gif(
                 filename=tmp_filepath / "output.gif",
                 fps=None,
@@ -177,7 +180,7 @@ class BotTwitter:
             return open(tmp_filepath / "output.gif", "rb").read()
         # TODO do not return BytesIO() object but raise exception instead
         except OSError as error:
-            logger.error(f"X {error}")
+            logger.error(f"{error}")
             return BytesIO()
 
     def mustachize_medias(self, medias: list) -> list:
@@ -186,7 +189,7 @@ class BotTwitter:
 
         :param medias: list of medias to mustachize
         """
-        logger.debug(f"| {len(medias)} medias found:")
+        logger.info(f"Medias found: {len(medias)}")
 
         mustachized_medias = []
         for media in medias:
@@ -199,11 +202,12 @@ class BotTwitter:
                 url = media["video_info"]["variants"][0]["url"]
 
             if media_type == "video":
-                error_message = "Media is a video and videos are not yet supported."
-                logger.error(f"X {error_message}")
+                error_message = "Media is a video and videos are not yet supported"
+                logger.error(f"{error_message}")
                 raise NotImplementedError(error_message)
 
-            logger.info(f"+-- Processing: {media_type.replace('_',' ')} ({url})")
+            logger.info(f"Processing {url}")
+            logger.debug(f"Twitter media type: {media_type.replace('_',' ')}")
 
             # TODO raise exception in download_media_from_url()
             image_buffer = self.download_media_from_url(
@@ -216,7 +220,7 @@ class BotTwitter:
                     {"buffer": mustachized_media, "type": media_type}
                 )
             except (NoFaceFoundError, ImageIncorrectError) as error:
-                logger.warning(f"X {error}")
+                logger.warning(f"{error}")
 
         return mustachized_medias
 
